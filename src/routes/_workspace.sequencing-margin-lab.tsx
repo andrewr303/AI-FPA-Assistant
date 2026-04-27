@@ -399,7 +399,7 @@ function Page() {
                         borderRadius: 8,
                         fontSize: 12,
                       }}
-                      formatter={(v: number) => `$${v.toFixed(5)}`}
+                      formatter={(v: unknown) => `$${Number(v).toFixed(5)}`}
                     />
                     <Bar dataKey="contribution" radius={[6, 6, 0, 0]}>
                       {vendorBreakdown.map((_, i) => (
@@ -457,7 +457,7 @@ function Page() {
                         borderRadius: 8,
                         fontSize: 12,
                       }}
-                      formatter={(v: number) => `$${v.toFixed(5)}`}
+                      formatter={(v: unknown) => `$${Number(v).toFixed(5)}`}
                     />
                     <Line
                       type="monotone"
