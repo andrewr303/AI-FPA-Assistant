@@ -20,6 +20,17 @@ import {
   vendorMixCurrent,
 } from "@/lib/mock/data";
 import { formatUsd, formatPct, formatMultiple, formatMonths, formatNumber } from "@/lib/format";
+
+const tipStyle = {
+  backgroundColor: "var(--popover)",
+  border: "1px solid var(--border)",
+  borderRadius: 8,
+  fontSize: 12,
+} as const;
+const fmtUsdTip = (v: unknown) => formatUsd(Number(v));
+const fmtPctTip = (v: unknown) => `${Number(v).toFixed(0)}%`;
+const fmtUsdOrPct = (v: unknown, name: unknown) =>
+  name === "arr" ? formatUsd(Number(v)) : `${Number(v)}%`;
 import {
   AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip,
   BarChart, Bar, Cell, PieChart, Pie,
