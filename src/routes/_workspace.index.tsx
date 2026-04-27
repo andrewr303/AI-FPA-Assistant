@@ -222,7 +222,7 @@ function Treasury() {
                       borderRadius: 8,
                       fontSize: 12,
                     }}
-                    formatter={(v: number) => formatUsd(v)}
+                    formatter={fmtUsdTip as any}
                   />
                   <Area
                     type="monotone"
@@ -268,7 +268,7 @@ function Treasury() {
                       borderRadius: 8,
                       fontSize: 12,
                     }}
-                    formatter={(v: number) => `${v}%`}
+                    formatter={fmtPctTip as any}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -322,7 +322,7 @@ function Treasury() {
                       borderRadius: 8,
                       fontSize: 12,
                     }}
-                    formatter={(v: number, name: string) =>
+                    formatter={((v: any, name: any) =>
                       name === "arr" ? formatUsd(v) : `${v}%`
                     }
                   />
