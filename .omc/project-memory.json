@@ -122,6 +122,12 @@
       "type": "file"
     },
     {
+      "path": "src\\lib\\ai\\copilot.functions.ts",
+      "accessCount": 4,
+      "lastAccessed": 1777330351503,
+      "type": "file"
+    },
+    {
       "path": "src\\components\\workspace\\copilot-drawer.tsx",
       "accessCount": 3,
       "lastAccessed": 1777326251603,
@@ -134,15 +140,21 @@
       "type": "directory"
     },
     {
-      "path": "src\\routes\\__root.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1777326221027,
+      "path": "src\\lib\\mock\\data.ts",
+      "accessCount": 3,
+      "lastAccessed": 1777330333536,
       "type": "file"
     },
     {
-      "path": "src\\lib\\ai\\copilot.functions.ts",
+      "path": "DEPLOY.md",
+      "accessCount": 3,
+      "lastAccessed": 1777330647213,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\__root.tsx",
       "accessCount": 2,
-      "lastAccessed": 1777326248902,
+      "lastAccessed": 1777326221027,
       "type": "file"
     },
     {
@@ -158,9 +170,51 @@
       "type": "file"
     },
     {
-      "path": "DEPLOY.md",
+      "path": "src\\routes\\_workspace.variance-narrator.tsx",
       "accessCount": 2,
-      "lastAccessed": 1777326798716,
+      "lastAccessed": 1777330389265,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.pricing-plays.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777330418533,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.signal-desk.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777330550244,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.vendor-portfolio.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777330601968,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.forecast-confidence.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777330629054,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.utilization-simulator.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777330884216,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.arr-waterfall.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777330921189,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.headcount-plays.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777330965887,
       "type": "file"
     },
     {
@@ -245,6 +299,24 @@
       "path": "copilot-api\\package.json",
       "accessCount": 1,
       "lastAccessed": 1777326791033,
+      "type": "file"
+    },
+    {
+      "path": "php-api\\copilot.php",
+      "accessCount": 1,
+      "lastAccessed": 1777330284487,
+      "type": "file"
+    },
+    {
+      "path": "php-api\\.htaccess",
+      "accessCount": 1,
+      "lastAccessed": 1777330287644,
+      "type": "file"
+    },
+    {
+      "path": "src\\lib\\format.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777330353302,
       "type": "file"
     }
   ],
