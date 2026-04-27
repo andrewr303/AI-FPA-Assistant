@@ -14,6 +14,7 @@ import { Route as WorkspaceIndexRouteImport } from './routes/_workspace.index'
 import { Route as WorkspaceVendorPortfolioRouteImport } from './routes/_workspace.vendor-portfolio'
 import { Route as WorkspaceVarianceNarratorRouteImport } from './routes/_workspace.variance-narrator'
 import { Route as WorkspaceUtilizationSimulatorRouteImport } from './routes/_workspace.utilization-simulator'
+import { Route as WorkspaceTreasuryRouteImport } from './routes/_workspace.treasury'
 import { Route as WorkspaceSignalDeskRouteImport } from './routes/_workspace.signal-desk'
 import { Route as WorkspaceSequencingMarginLabRouteImport } from './routes/_workspace.sequencing-margin-lab'
 import { Route as WorkspacePricingPlaysRouteImport } from './routes/_workspace.pricing-plays'
@@ -49,6 +50,11 @@ const WorkspaceUtilizationSimulatorRoute =
     path: '/utilization-simulator',
     getParentRoute: () => WorkspaceRoute,
   } as any)
+const WorkspaceTreasuryRoute = WorkspaceTreasuryRouteImport.update({
+  id: '/treasury',
+  path: '/treasury',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
 const WorkspaceSignalDeskRoute = WorkspaceSignalDeskRouteImport.update({
   id: '/signal-desk',
   path: '/signal-desk',
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/pricing-plays': typeof WorkspacePricingPlaysRoute
   '/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
   '/signal-desk': typeof WorkspaceSignalDeskRoute
+  '/treasury': typeof WorkspaceTreasuryRoute
   '/utilization-simulator': typeof WorkspaceUtilizationSimulatorRoute
   '/variance-narrator': typeof WorkspaceVarianceNarratorRoute
   '/vendor-portfolio': typeof WorkspaceVendorPortfolioRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/pricing-plays': typeof WorkspacePricingPlaysRoute
   '/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
   '/signal-desk': typeof WorkspaceSignalDeskRoute
+  '/treasury': typeof WorkspaceTreasuryRoute
   '/utilization-simulator': typeof WorkspaceUtilizationSimulatorRoute
   '/variance-narrator': typeof WorkspaceVarianceNarratorRoute
   '/vendor-portfolio': typeof WorkspaceVendorPortfolioRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/_workspace/pricing-plays': typeof WorkspacePricingPlaysRoute
   '/_workspace/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
   '/_workspace/signal-desk': typeof WorkspaceSignalDeskRoute
+  '/_workspace/treasury': typeof WorkspaceTreasuryRoute
   '/_workspace/utilization-simulator': typeof WorkspaceUtilizationSimulatorRoute
   '/_workspace/variance-narrator': typeof WorkspaceVarianceNarratorRoute
   '/_workspace/vendor-portfolio': typeof WorkspaceVendorPortfolioRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/pricing-plays'
     | '/sequencing-margin-lab'
     | '/signal-desk'
+    | '/treasury'
     | '/utilization-simulator'
     | '/variance-narrator'
     | '/vendor-portfolio'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/pricing-plays'
     | '/sequencing-margin-lab'
     | '/signal-desk'
+    | '/treasury'
     | '/utilization-simulator'
     | '/variance-narrator'
     | '/vendor-portfolio'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/_workspace/pricing-plays'
     | '/_workspace/sequencing-margin-lab'
     | '/_workspace/signal-desk'
+    | '/_workspace/treasury'
     | '/_workspace/utilization-simulator'
     | '/_workspace/variance-narrator'
     | '/_workspace/vendor-portfolio'
@@ -210,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/utilization-simulator'
       fullPath: '/utilization-simulator'
       preLoaderRoute: typeof WorkspaceUtilizationSimulatorRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/treasury': {
+      id: '/_workspace/treasury'
+      path: '/treasury'
+      fullPath: '/treasury'
+      preLoaderRoute: typeof WorkspaceTreasuryRouteImport
       parentRoute: typeof WorkspaceRoute
     }
     '/_workspace/signal-desk': {
@@ -272,6 +291,7 @@ interface WorkspaceRouteChildren {
   WorkspacePricingPlaysRoute: typeof WorkspacePricingPlaysRoute
   WorkspaceSequencingMarginLabRoute: typeof WorkspaceSequencingMarginLabRoute
   WorkspaceSignalDeskRoute: typeof WorkspaceSignalDeskRoute
+  WorkspaceTreasuryRoute: typeof WorkspaceTreasuryRoute
   WorkspaceUtilizationSimulatorRoute: typeof WorkspaceUtilizationSimulatorRoute
   WorkspaceVarianceNarratorRoute: typeof WorkspaceVarianceNarratorRoute
   WorkspaceVendorPortfolioRoute: typeof WorkspaceVendorPortfolioRoute
@@ -286,6 +306,7 @@ const WorkspaceRouteChildren: WorkspaceRouteChildren = {
   WorkspacePricingPlaysRoute: WorkspacePricingPlaysRoute,
   WorkspaceSequencingMarginLabRoute: WorkspaceSequencingMarginLabRoute,
   WorkspaceSignalDeskRoute: WorkspaceSignalDeskRoute,
+  WorkspaceTreasuryRoute: WorkspaceTreasuryRoute,
   WorkspaceUtilizationSimulatorRoute: WorkspaceUtilizationSimulatorRoute,
   WorkspaceVarianceNarratorRoute: WorkspaceVarianceNarratorRoute,
   WorkspaceVendorPortfolioRoute: WorkspaceVendorPortfolioRoute,

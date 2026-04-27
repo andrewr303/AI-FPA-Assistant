@@ -20,12 +20,14 @@ export function TopBar({
             FY26
           </Badge>
         </div>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>
-        )}
+        {subtitle && <p className="text-xs text-muted-foreground mt-0.5 truncate">{subtitle}</p>}
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hidden sm:inline-flex">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2 text-muted-foreground hidden sm:inline-flex"
+        >
           <Search className="h-4 w-4" />
           <span className="text-xs">Sweep</span>
           <kbd className="ml-1 text-[10px] font-mono rounded border border-border px-1 py-0.5">

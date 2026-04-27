@@ -1,6 +1,12 @@
 import { cn } from "@/lib/utils";
 
-export function NooksLogo({ className, compact = false }: { className?: string; compact?: boolean }) {
+export function NooksLogo({
+  className,
+  compact = false,
+}: {
+  className?: string;
+  compact?: boolean;
+}) {
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <div
@@ -8,9 +14,7 @@ export function NooksLogo({ className, compact = false }: { className?: string; 
         aria-hidden
       />
       <div className="flex flex-col leading-none">
-        <span className="text-lg font-bold tracking-tight lowercase text-foreground">
-          nooks
-        </span>
+        <span className="text-lg font-bold tracking-tight lowercase text-foreground">nooks</span>
         {!compact && (
           <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             FP&amp;A Workspace

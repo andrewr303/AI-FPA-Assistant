@@ -17,7 +17,12 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/", label: "Treasury", icon: LayoutDashboard, group: "Overview" },
-  { to: "/sequencing-margin-lab", label: "Margin Lab", icon: FlaskConical, group: "Cost engineering" },
+  {
+    to: "/sequencing-margin-lab",
+    label: "Margin Lab",
+    icon: FlaskConical,
+    group: "Cost engineering",
+  },
   { to: "/utilization-simulator", label: "Utilization", icon: Activity, group: "Cost engineering" },
   { to: "/vendor-portfolio", label: "Vendor Portfolio", icon: Boxes, group: "Cost engineering" },
   { to: "/pricing-plays", label: "Pricing Plays", icon: Tag, group: "Revenue" },
@@ -61,9 +66,7 @@ export function SidebarNav() {
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="truncate">{item.label}</span>
-                    {active && (
-                      <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
-                    )}
+                    {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />}
                   </Link>
                 );
               })}

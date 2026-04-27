@@ -9,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Loader2, Send, User, Bot } from "lucide-react";
-import { useServerFn } from "@tanstack/react-start";
 import { askFinance } from "@/lib/ai/copilot.functions";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +34,7 @@ export function CopilotDrawer({
   const [messages, setMessages] = useState<Msg[]>([]);
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const ask = useServerFn(askFinance);
+  const ask = askFinance;
 
   useEffect(() => {
     if (prefill && open) setInput(prefill);
@@ -59,10 +58,7 @@ export function CopilotDrawer({
       const res = await ask({ data: { messages: next } });
       setMessages([...next, { role: "assistant", content: res.reply }]);
     } catch {
-      setMessages([
-        ...next,
-        { role: "assistant", content: "Copilot error — please retry." },
-      ]);
+      setMessages([...next, { role: "assistant", content: "Copilot error — please retry." }]);
     } finally {
       setBusy(false);
     }
@@ -88,15 +84,11 @@ export function CopilotDrawer({
           </div>
         </SheetHeader>
 
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto scrollbar-thin px-5 py-4 space-y-4"
-        >
+        <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-thin px-5 py-4 space-y-4">
           {messages.length === 0 && (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                The agent is still listening. Insights drop when the call ends.
-                Try one of these:
+                The agent is still listening. Insights drop when the call ends. Try one of these:
               </p>
               <div className="space-y-1.5">
                 {SUGGESTIONS.map((s) => (
@@ -114,10 +106,7 @@ export function CopilotDrawer({
           {messages.map((m, i) => (
             <div
               key={i}
-              className={cn(
-                "flex gap-2.5 text-sm",
-                m.role === "user" ? "flex-row-reverse" : "",
-              )}
+              className={cn("flex gap-2.5 text-sm", m.role === "user" ? "flex-row-reverse" : "")}
             >
               <div
                 className={cn(
@@ -169,12 +158,7 @@ export function CopilotDrawer({
             disabled={busy}
             className="flex-1 bg-background border-border"
           />
-          <Button
-            type="submit"
-            disabled={busy || !input.trim()}
-            size="icon"
-            className="shrink-0"
-          >
+          <Button type="submit" disabled={busy || !input.trim()} size="icon" className="shrink-0">
             <Send className="h-4 w-4" />
           </Button>
         </form>

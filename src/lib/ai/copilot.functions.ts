@@ -1,5 +1,3 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import {
   alerts,
   varianceRecords,
@@ -9,14 +7,7 @@ import {
   computeCostPerAction,
 } from "@/lib/mock/data";
 
-const CopilotInput = z.object({
-  messages: z.array(
-    z.object({
-      role: z.enum(["user", "assistant", "system"]),
-      content: z.string(),
-    }),
-  ),
-});
+type Msg = { role: "user" | "assistant" | "system"; content: string };
 
 const SYSTEM = `You are the in-house FP&A copilot for Nooks, an AI-native sales-tech company.
 You exist because their finance team is "all in Sheets" and just launched AI Sequencing in February 2026 with usage-based pricing.
@@ -73,146 +64,66 @@ function buildContext() {
   };
 }
 
-export const askFinance = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => CopilotInput.parse(data))
-  .handler(async ({ data }) => {
-    const apiKey = process.env.AI_GATEWAY_API_KEY;
-    if (!apiKey) {
-      return {
-        reply:
-          "AI Gateway key not configured. Set `AI_GATEWAY_API_KEY` to enable the copilot.",
-        error: true,
-      };
-    }
+const COPILOT_API = import.meta.env.VITE_COPILOT_API_URL as string | undefined;
 
-    const ctx = buildContext();
-
-    try {
-      const res = await fetch(
-        "https://ai-gateway.vercel.sh/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "anthropic/claude-sonnet-4.5",
-            messages: [
-              { role: "system", content: SYSTEM },
-              {
-                role: "system",
-                content: `Here is the live workspace context (JSON):\n${JSON.stringify(ctx, null, 2)}`,
-              },
-              ...data.messages,
-            ],
-            max_tokens: 600,
-            temperature: 0.4,
-          }),
-        },
-      );
-
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("[askFinance] gateway error", res.status, text);
-        return {
-          reply: `Gateway error (${res.status}). Check AI_GATEWAY_API_KEY and model access.`,
-          error: true,
-        };
-      }
-
-      const json: {
-        choices?: { message?: { content?: string } }[];
-      } = await res.json();
-      const reply =
-        json.choices?.[0]?.message?.content?.trim() ||
-        "The agent is still listening.";
-      return { reply, error: false };
-    } catch (e) {
-      console.error("[askFinance] failed", e);
-      return {
-        reply: "Copilot error — please retry.",
-        error: true,
-      };
-    }
+async function callCopilotApi<T>(path: string, body: unknown): Promise<T | null> {
+  if (!COPILOT_API) return null;
+  const res = await fetch(`${COPILOT_API.replace(/\/$/, "")}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
   });
-
-// ===== Variance brief (structured exec narrative) =====
-
-const BriefInput = z.object({ period: z.string() });
-
-export const varianceBrief = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => BriefInput.parse(data))
-  .handler(async ({ data }) => {
-    const apiKey = process.env.AI_GATEWAY_API_KEY;
-    const records = varianceRecords.filter((r) => r.period === data.period);
-    if (!apiKey) {
-      return {
-        headline: "AI Gateway key not configured.",
-        drivers: [],
-        risks: [],
-        recommendations: [],
-        error: true,
-      };
-    }
-
-    const prompt = `You are Dan Lee writing a terse board variance brief for Nooks for ${data.period}.
-Variance data:
-${JSON.stringify(records, null, 2)}
-
-Return ONLY a valid JSON object (no markdown fences) matching this TypeScript type:
-{
-  "headline": string,                          // one sentence punchline with a specific dollar number
-  "drivers": { "name": string, "impact_usd": number, "direction": "favorable" | "unfavorable" }[],  // 3-5 items
-  "risks": string[],                           // 2-4 items, each one sentence
-  "recommendations": string[]                  // 2-4 items, each one sentence, action-oriented
+  if (!res.ok) throw new Error(`copilot api ${res.status}`);
+  return (await res.json()) as T;
 }
 
-Include one Nooks-flavored phrase somewhere (e.g. "Ask Why", "More signal. Less spreadsheet.").`;
+export async function askFinance(args: { data: { messages: Msg[] } }): Promise<{
+  reply: string;
+  error: boolean;
+}> {
+  try {
+    const remote = await callCopilotApi<{ reply: string; error: boolean }>("/ask-finance", {
+      messages: args.data.messages,
+      system: SYSTEM,
+      context: buildContext(),
+    });
+    if (remote) return remote;
+  } catch (e) {
+    console.error("[askFinance] remote failed", e);
+    return { reply: "Copilot error — please retry.", error: true };
+  }
+  return {
+    reply:
+      "This is the static Hostinger build, so the live copilot is offline. Set VITE_COPILOT_API_URL to point at a hosted endpoint to enable Ask Finance.\n\n*— drawn from build config*",
+    error: true,
+  };
+}
 
-    try {
-      const res = await fetch(
-        "https://ai-gateway.vercel.sh/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "anthropic/claude-sonnet-4.5",
-            messages: [{ role: "user", content: prompt }],
-            max_tokens: 700,
-            temperature: 0.3,
-          }),
-        },
-      );
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("[varianceBrief] gateway error", res.status, text);
-        return {
-          headline: `Gateway error (${res.status}).`,
-          drivers: [],
-          risks: [],
-          recommendations: [],
-          error: true,
-        };
-      }
-      const json: { choices?: { message?: { content?: string } }[] } =
-        await res.json();
-      const raw = json.choices?.[0]?.message?.content?.trim() || "{}";
-      // Strip possible ```json fences
-      const cleaned = raw.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "");
-      const parsed = JSON.parse(cleaned);
-      return { ...parsed, error: false };
-    } catch (e) {
-      console.error("[varianceBrief] failed", e);
-      return {
-        headline: "Brief generation failed — retry.",
-        drivers: [],
-        risks: [],
-        recommendations: [],
-        error: true,
-      };
-    }
-  });
+export async function varianceBrief(args: { data: { period: string } }): Promise<{
+  headline: string;
+  drivers: { name: string; impact_usd: number; direction: "favorable" | "unfavorable" }[];
+  risks: string[];
+  recommendations: string[];
+  error: boolean;
+}> {
+  const records = varianceRecords.filter((r) => r.period === args.data.period);
+  try {
+    const remote = await callCopilotApi<{
+      headline: string;
+      drivers: { name: string; impact_usd: number; direction: "favorable" | "unfavorable" }[];
+      risks: string[];
+      recommendations: string[];
+      error: boolean;
+    }>("/variance-brief", { period: args.data.period, records });
+    if (remote) return remote;
+  } catch (e) {
+    console.error("[varianceBrief] remote failed", e);
+  }
+  return {
+    headline: "Variance brief is offline in the static build.",
+    drivers: [],
+    risks: ["Set VITE_COPILOT_API_URL to enable AI briefs."],
+    recommendations: [],
+    error: true,
+  };
+}

@@ -1,0 +1,9 @@
+name = "nooks-copilot-api"
+main = "worker.ts"
+compatibility_date = "2025-09-24"
+
+# Set with:  npx wrangler secret put AI_GATEWAY_API_KEY
+# Optional:  set ALLOWED_ORIGIN to your Hostinger domain (e.g. https://nooks.andrewvrodriguez.com)
+#            to lock down CORS instead of "*".
+[vars]
+ALLOWED_ORIGIN = "*"

@@ -32,9 +32,23 @@ const fmtPctTip = (v: unknown) => `${Number(v).toFixed(0)}%`;
 const fmtUsdOrPct = (v: unknown, name: unknown) =>
   name === "arr" ? formatUsd(Number(v)) : `${Number(v)}%`;
 import {
-  AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip,
-  BarChart, Bar, Cell, PieChart, Pie,
+  AreaChart,
+  Area,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+  BarChart,
+  Bar,
+  Cell,
+  PieChart,
+  Pie,
 } from "recharts";
+import type {
+  Formatter,
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
 import { AlertTriangle, TrendingUp, ArrowRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
@@ -183,17 +197,14 @@ function Treasury() {
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
                   ARR Trajectory · 12 mo
                 </div>
-                <div className="text-2xl font-bold tabular-nums mt-1">
-                  {formatUsd(arr)}
-                </div>
+                <div className="text-2xl font-bold tabular-nums mt-1">{formatUsd(arr)}</div>
               </div>
               <Badge className="bg-success/15 text-success border-success/30 font-mono">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +{deltaOf(arrSeries).toFixed(1)}% QoQ
+                <TrendingUp className="h-3 w-3 mr-1" />+{deltaOf(arrSeries).toFixed(1)}% QoQ
               </Badge>
             </div>
             <div className="h-64">
-              <ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <AreaChart data={arrSeries}>
                   <defs>
                     <linearGradient id="arrFill" x1="0" y1="0" x2="0" y2="1">
@@ -222,7 +233,7 @@ function Treasury() {
                       borderRadius: 8,
                       fontSize: 12,
                     }}
-                    formatter={fmtUsdTip as any}
+                    formatter={fmtUsdTip as unknown as Formatter<ValueType, NameType>}
                   />
                   <Area
                     type="monotone"
@@ -245,7 +256,7 @@ function Treasury() {
               {formatUsd(vendorMixCurrent.reduce((s, v) => s + v.cogs, 0))}
             </div>
             <div className="h-40">
-              <ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <PieChart>
                   <Pie
                     data={vendorMixCurrent}
@@ -268,7 +279,7 @@ function Treasury() {
                       borderRadius: 8,
                       fontSize: 12,
                     }}
-                    formatter={fmtPctTip as any}
+                    formatter={fmtPctTip as unknown as Formatter<ValueType, NameType>}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -298,7 +309,7 @@ function Treasury() {
               ARR by Product · Margin Overlay
             </div>
             <div className="h-56">
-              <ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={arrByProduct} layout="vertical" margin={{ left: 20 }}>
                   <XAxis
                     type="number"
@@ -322,14 +333,11 @@ function Treasury() {
                       borderRadius: 8,
                       fontSize: 12,
                     }}
-                    formatter={fmtUsdOrPct as any}
+                    formatter={fmtUsdOrPct as unknown as Formatter<ValueType, NameType>}
                   />
                   <Bar dataKey="arr" radius={[0, 6, 6, 0]}>
                     {arrByProduct.map((p, i) => (
-                      <Cell
-                        key={i}
-                        fill={p.gm < 60 ? "var(--chart-4)" : CHART_COLORS[i]}
-                      />
+                      <Cell key={i} fill={p.gm < 60 ? "var(--chart-4)" : CHART_COLORS[i]} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -354,7 +362,9 @@ function Treasury() {
               {criticalAlerts.slice(0, 3).map((a) => (
                 <button
                   key={a.id}
-                  onClick={() => copilot.open(`Explain this alert: ${a.title}. Driver notes: ${a.message}`)}
+                  onClick={() =>
+                    copilot.open(`Explain this alert: ${a.title}. Driver notes: ${a.message}`)
+                  }
                   className="w-full text-left p-3 rounded-lg border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 transition-colors group"
                 >
                   <div className="flex items-start gap-2">

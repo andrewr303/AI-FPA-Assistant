@@ -1,0 +1,252 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777325810628,
+  "projectRoot": "c:\\dev\\mindful-executor",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "19.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "vite",
+        "version": "7.3.1",
+        "category": "build"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "bun build",
+    "testCommand": null,
+    "lintCommand": "bun lint",
+    "devCommand": "bun dev",
+    "scripts": {
+      "dev": "vite dev",
+      "build": "vite build",
+      "build:dev": "vite build --mode development",
+      "preview": "vite preview",
+      "lint": "eslint .",
+      "format": "prettier --write ."
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 3,
+      "lastAccessed": 1777325810558,
+      "keyFiles": [
+        "router.tsx",
+        "routeTree.gen.ts",
+        "styles.css"
+      ]
+    },
+    "src\\components": {
+      "path": "src\\components",
+      "purpose": "UI components",
+      "fileCount": 0,
+      "lastAccessed": 1777325810575,
+      "keyFiles": []
+    },
+    "src\\lib": {
+      "path": "src\\lib",
+      "purpose": "Library code",
+      "fileCount": 2,
+      "lastAccessed": 1777325810576,
+      "keyFiles": [
+        "format.ts",
+        "utils.ts"
+      ]
+    },
+    "src\\routes": {
+      "path": "src\\routes",
+      "purpose": "Route handlers",
+      "fileCount": 13,
+      "lastAccessed": 1777325810577,
+      "keyFiles": [
+        "_workspace.arr-waterfall.tsx",
+        "_workspace.copilot.tsx",
+        "_workspace.forecast-confidence.tsx"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src\\routes\\_workspace.index.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1777326860815,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\workspace\\copilot-drawer.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1777326251603,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 3,
+      "lastAccessed": 1777326269699,
+      "type": "directory"
+    },
+    {
+      "path": "src\\routes\\__root.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777326221027,
+      "type": "file"
+    },
+    {
+      "path": "src\\lib\\ai\\copilot.functions.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777326248902,
+      "type": "file"
+    },
+    {
+      "path": "vite.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1777326255226,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 2,
+      "lastAccessed": 1777326286031,
+      "type": "file"
+    },
+    {
+      "path": "DEPLOY.md",
+      "accessCount": 2,
+      "lastAccessed": 1777326798716,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1777326084520,
+      "type": "directory"
+    },
+    {
+      "path": "src\\components\\workspace\\sidebar-nav.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777326091193,
+      "type": "file"
+    },
+    {
+      "path": "wrangler.jsonc",
+      "accessCount": 1,
+      "lastAccessed": 1777326092142,
+      "type": "file"
+    },
+    {
+      "path": "src\\router.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777326180990,
+      "type": "file"
+    },
+    {
+      "path": "src\\routeTree.gen.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777326201729,
+      "type": "file"
+    },
+    {
+      "path": "index.html",
+      "accessCount": 1,
+      "lastAccessed": 1777326215113,
+      "type": "file"
+    },
+    {
+      "path": "src\\main.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777326217423,
+      "type": "file"
+    },
+    {
+      "path": "public\\.htaccess",
+      "accessCount": 1,
+      "lastAccessed": 1777326260711,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777326268829,
+      "type": "file"
+    },
+    {
+      "path": ".env.example",
+      "accessCount": 1,
+      "lastAccessed": 1777326292854,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.treasury.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777326768450,
+      "type": "file"
+    },
+    {
+      "path": "copilot-api\\worker.ts",
+      "accessCount": 1,
+      "lastAccessed": 1777326786804,
+      "type": "file"
+    },
+    {
+      "path": "copilot-api\\wrangler.toml",
+      "accessCount": 1,
+      "lastAccessed": 1777326789335,
+      "type": "file"
+    },
+    {
+      "path": "copilot-api\\package.json",
+      "accessCount": 1,
+      "lastAccessed": 1777326791033,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

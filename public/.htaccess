@@ -1,0 +1,27 @@
+# Hostinger / Apache SPA fallback for TanStack Router client-side routes.
+# Without this, deep links like /treasury or /signal-desk return 403/404.
+
+Options -MultiViews
+RewriteEngine On
+RewriteBase /
+
+# Don't rewrite real files or directories (assets, favicon, etc.)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Everything else → index.html (SPA handles routing)
+RewriteRule ^ index.html [L]
+
+# Cache hashed assets aggressively, never cache index.html
+<FilesMatch "\.(js|css|woff2?|png|jpg|jpeg|gif|svg|webp|ico)$">
+  Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+<FilesMatch "index\.html$">
+  Header set Cache-Control "no-cache, no-store, must-revalidate"
+</FilesMatch>
+
+# Basic security headers
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set Referrer-Policy "strict-origin-when-cross-origin"

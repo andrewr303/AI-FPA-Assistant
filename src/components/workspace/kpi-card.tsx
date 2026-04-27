@@ -42,22 +42,13 @@ export function KpiCard({
         <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
           {label}
         </div>
-        <div
-          className={cn(
-            "flex items-center gap-0.5 text-xs font-mono tabular-nums",
-            deltaColor,
-          )}
-        >
+        <div className={cn("flex items-center gap-0.5 text-xs font-mono tabular-nums", deltaColor)}>
           <Arrow className="h-3 w-3" />
           {Math.abs(delta).toFixed(1)}%
         </div>
       </div>
-      <div className="text-3xl font-bold tabular-nums tracking-tight mb-1">
-        {value}
-      </div>
-      {hint && (
-        <div className="text-[11px] text-muted-foreground mb-2">{hint}</div>
-      )}
+      <div className="text-3xl font-bold tabular-nums tracking-tight mb-1">{value}</div>
+      {hint && <div className="text-[11px] text-muted-foreground mb-2">{hint}</div>}
       <div className="h-10 -mx-1 mt-2">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={series}>

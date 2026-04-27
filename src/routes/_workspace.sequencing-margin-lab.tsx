@@ -252,9 +252,7 @@ function Page() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm font-semibold">Scenario inputs</div>
-                <div className="text-xs text-muted-foreground mt-0.5">
-                  Per-action assumptions
-                </div>
+                <div className="text-xs text-muted-foreground mt-0.5">Per-action assumptions</div>
               </div>
               <Button
                 size="sm"
@@ -381,12 +379,12 @@ function Page() {
                     data={vendorBreakdown}
                     margin={{ top: 8, right: 8, left: 8, bottom: 8 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                    <XAxis
-                      dataKey="vendor"
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={11}
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                      opacity={0.3}
                     />
+                    <XAxis dataKey="vendor" stroke="hsl(var(--muted-foreground))" fontSize={11} />
                     <YAxis
                       stroke="hsl(var(--muted-foreground))"
                       fontSize={11}
@@ -419,9 +417,7 @@ function Page() {
                     <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                       {v.vendor}
                     </div>
-                    <div className="text-sm font-mono mt-0.5">
-                      ${v.contribution.toFixed(5)}
-                    </div>
+                    <div className="text-sm font-mono mt-0.5">${v.contribution.toFixed(5)}</div>
                     <div className="text-[10px] text-muted-foreground">
                       {formatPct(v.share * 100, 0)} • ${v.rawPerAction.toFixed(4)} raw
                     </div>
@@ -435,7 +431,12 @@ function Page() {
                 <div>
                   <div className="text-sm font-semibold">Cache-hit sensitivity</div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    Every 10 pp of cache hit ≈ {formatPct(((cacheCurve[0].cost - cacheCurve[10].cost) / cacheCurve[0].cost) * 10, 1)} cost reduction
+                    Every 10 pp of cache hit ≈{" "}
+                    {formatPct(
+                      ((cacheCurve[0].cost - cacheCurve[10].cost) / cacheCurve[0].cost) * 10,
+                      1,
+                    )}{" "}
+                    cost reduction
                   </div>
                 </div>
                 <Zap className="h-4 w-4 text-primary" />
@@ -443,7 +444,11 @@ function Page() {
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={cacheCurve} margin={{ top: 8, right: 20, left: 8, bottom: 8 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                      opacity={0.3}
+                    />
                     <XAxis dataKey="cache" stroke="hsl(var(--muted-foreground))" fontSize={11} />
                     <YAxis
                       stroke="hsl(var(--muted-foreground))"
@@ -510,9 +515,7 @@ function Page() {
                       {presetGm.toFixed(0)}% GM
                     </Badge>
                   </div>
-                  <div className="text-xs text-muted-foreground leading-relaxed">
-                    {p.desc}
-                  </div>
+                  <div className="text-xs text-muted-foreground leading-relaxed">{p.desc}</div>
                   <div className="text-[11px] font-mono text-foreground/80 pt-1 border-t border-border/50">
                     ${c.total.toFixed(4)} / action
                   </div>
@@ -572,9 +575,9 @@ function Page() {
             <div className="flex-1">
               <div className="text-sm font-semibold">Ask the margin agent</div>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Current scenario: {`$${costPerAction.toFixed(4)}`}/action, {gm.toFixed(1)}% GM.
-                The agent can narrate trade-offs, write the board talking points, or draft the
-                vendor rebalance email.
+                Current scenario: {`$${costPerAction.toFixed(4)}`}/action, {gm.toFixed(1)}% GM. The
+                agent can narrate trade-offs, write the board talking points, or draft the vendor
+                rebalance email.
               </p>
               <div className="flex flex-wrap gap-2 mt-3">
                 <Button
@@ -715,13 +718,7 @@ function SliderField({
           {suffix}
         </span>
       </div>
-      <Slider
-        value={[value]}
-        min={0}
-        max={max}
-        step={step}
-        onValueChange={(v) => onChange(v[0])}
-      />
+      <Slider value={[value]} min={0} max={max} step={step} onValueChange={(v) => onChange(v[0])} />
     </div>
   );
 }
