@@ -11,7 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as WorkspaceIndexRouteImport } from './routes/_workspace.index'
+import { Route as WorkspaceVendorPortfolioRouteImport } from './routes/_workspace.vendor-portfolio'
+import { Route as WorkspaceVarianceNarratorRouteImport } from './routes/_workspace.variance-narrator'
+import { Route as WorkspaceUtilizationSimulatorRouteImport } from './routes/_workspace.utilization-simulator'
+import { Route as WorkspaceSignalDeskRouteImport } from './routes/_workspace.signal-desk'
 import { Route as WorkspaceSequencingMarginLabRouteImport } from './routes/_workspace.sequencing-margin-lab'
+import { Route as WorkspacePricingPlaysRouteImport } from './routes/_workspace.pricing-plays'
+import { Route as WorkspaceHeadcountPlaysRouteImport } from './routes/_workspace.headcount-plays'
+import { Route as WorkspaceForecastConfidenceRouteImport } from './routes/_workspace.forecast-confidence'
+import { Route as WorkspaceCopilotRouteImport } from './routes/_workspace.copilot'
+import { Route as WorkspaceArrWaterfallRouteImport } from './routes/_workspace.arr-waterfall'
 
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/_workspace',
@@ -22,36 +31,143 @@ const WorkspaceIndexRoute = WorkspaceIndexRouteImport.update({
   path: '/',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceVendorPortfolioRoute =
+  WorkspaceVendorPortfolioRouteImport.update({
+    id: '/vendor-portfolio',
+    path: '/vendor-portfolio',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
+const WorkspaceVarianceNarratorRoute =
+  WorkspaceVarianceNarratorRouteImport.update({
+    id: '/variance-narrator',
+    path: '/variance-narrator',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
+const WorkspaceUtilizationSimulatorRoute =
+  WorkspaceUtilizationSimulatorRouteImport.update({
+    id: '/utilization-simulator',
+    path: '/utilization-simulator',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
+const WorkspaceSignalDeskRoute = WorkspaceSignalDeskRouteImport.update({
+  id: '/signal-desk',
+  path: '/signal-desk',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
 const WorkspaceSequencingMarginLabRoute =
   WorkspaceSequencingMarginLabRouteImport.update({
     id: '/sequencing-margin-lab',
     path: '/sequencing-margin-lab',
     getParentRoute: () => WorkspaceRoute,
   } as any)
+const WorkspacePricingPlaysRoute = WorkspacePricingPlaysRouteImport.update({
+  id: '/pricing-plays',
+  path: '/pricing-plays',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspaceHeadcountPlaysRoute = WorkspaceHeadcountPlaysRouteImport.update({
+  id: '/headcount-plays',
+  path: '/headcount-plays',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspaceForecastConfidenceRoute =
+  WorkspaceForecastConfidenceRouteImport.update({
+    id: '/forecast-confidence',
+    path: '/forecast-confidence',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
+const WorkspaceCopilotRoute = WorkspaceCopilotRouteImport.update({
+  id: '/copilot',
+  path: '/copilot',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspaceArrWaterfallRoute = WorkspaceArrWaterfallRouteImport.update({
+  id: '/arr-waterfall',
+  path: '/arr-waterfall',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof WorkspaceIndexRoute
+  '/arr-waterfall': typeof WorkspaceArrWaterfallRoute
+  '/copilot': typeof WorkspaceCopilotRoute
+  '/forecast-confidence': typeof WorkspaceForecastConfidenceRoute
+  '/headcount-plays': typeof WorkspaceHeadcountPlaysRoute
+  '/pricing-plays': typeof WorkspacePricingPlaysRoute
   '/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
+  '/signal-desk': typeof WorkspaceSignalDeskRoute
+  '/utilization-simulator': typeof WorkspaceUtilizationSimulatorRoute
+  '/variance-narrator': typeof WorkspaceVarianceNarratorRoute
+  '/vendor-portfolio': typeof WorkspaceVendorPortfolioRoute
 }
 export interface FileRoutesByTo {
+  '/arr-waterfall': typeof WorkspaceArrWaterfallRoute
+  '/copilot': typeof WorkspaceCopilotRoute
+  '/forecast-confidence': typeof WorkspaceForecastConfidenceRoute
+  '/headcount-plays': typeof WorkspaceHeadcountPlaysRoute
+  '/pricing-plays': typeof WorkspacePricingPlaysRoute
   '/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
+  '/signal-desk': typeof WorkspaceSignalDeskRoute
+  '/utilization-simulator': typeof WorkspaceUtilizationSimulatorRoute
+  '/variance-narrator': typeof WorkspaceVarianceNarratorRoute
+  '/vendor-portfolio': typeof WorkspaceVendorPortfolioRoute
   '/': typeof WorkspaceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_workspace': typeof WorkspaceRouteWithChildren
+  '/_workspace/arr-waterfall': typeof WorkspaceArrWaterfallRoute
+  '/_workspace/copilot': typeof WorkspaceCopilotRoute
+  '/_workspace/forecast-confidence': typeof WorkspaceForecastConfidenceRoute
+  '/_workspace/headcount-plays': typeof WorkspaceHeadcountPlaysRoute
+  '/_workspace/pricing-plays': typeof WorkspacePricingPlaysRoute
   '/_workspace/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
+  '/_workspace/signal-desk': typeof WorkspaceSignalDeskRoute
+  '/_workspace/utilization-simulator': typeof WorkspaceUtilizationSimulatorRoute
+  '/_workspace/variance-narrator': typeof WorkspaceVarianceNarratorRoute
+  '/_workspace/vendor-portfolio': typeof WorkspaceVendorPortfolioRoute
   '/_workspace/': typeof WorkspaceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/sequencing-margin-lab'
+  fullPaths:
+    | '/'
+    | '/arr-waterfall'
+    | '/copilot'
+    | '/forecast-confidence'
+    | '/headcount-plays'
+    | '/pricing-plays'
+    | '/sequencing-margin-lab'
+    | '/signal-desk'
+    | '/utilization-simulator'
+    | '/variance-narrator'
+    | '/vendor-portfolio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/sequencing-margin-lab' | '/'
+  to:
+    | '/arr-waterfall'
+    | '/copilot'
+    | '/forecast-confidence'
+    | '/headcount-plays'
+    | '/pricing-plays'
+    | '/sequencing-margin-lab'
+    | '/signal-desk'
+    | '/utilization-simulator'
+    | '/variance-narrator'
+    | '/vendor-portfolio'
+    | '/'
   id:
     | '__root__'
     | '/_workspace'
+    | '/_workspace/arr-waterfall'
+    | '/_workspace/copilot'
+    | '/_workspace/forecast-confidence'
+    | '/_workspace/headcount-plays'
+    | '/_workspace/pricing-plays'
     | '/_workspace/sequencing-margin-lab'
+    | '/_workspace/signal-desk'
+    | '/_workspace/utilization-simulator'
+    | '/_workspace/variance-narrator'
+    | '/_workspace/vendor-portfolio'
     | '/_workspace/'
   fileRoutesById: FileRoutesById
 }
@@ -75,6 +191,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceIndexRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/vendor-portfolio': {
+      id: '/_workspace/vendor-portfolio'
+      path: '/vendor-portfolio'
+      fullPath: '/vendor-portfolio'
+      preLoaderRoute: typeof WorkspaceVendorPortfolioRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/variance-narrator': {
+      id: '/_workspace/variance-narrator'
+      path: '/variance-narrator'
+      fullPath: '/variance-narrator'
+      preLoaderRoute: typeof WorkspaceVarianceNarratorRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/utilization-simulator': {
+      id: '/_workspace/utilization-simulator'
+      path: '/utilization-simulator'
+      fullPath: '/utilization-simulator'
+      preLoaderRoute: typeof WorkspaceUtilizationSimulatorRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/signal-desk': {
+      id: '/_workspace/signal-desk'
+      path: '/signal-desk'
+      fullPath: '/signal-desk'
+      preLoaderRoute: typeof WorkspaceSignalDeskRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
     '/_workspace/sequencing-margin-lab': {
       id: '/_workspace/sequencing-margin-lab'
       path: '/sequencing-margin-lab'
@@ -82,16 +226,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceSequencingMarginLabRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/pricing-plays': {
+      id: '/_workspace/pricing-plays'
+      path: '/pricing-plays'
+      fullPath: '/pricing-plays'
+      preLoaderRoute: typeof WorkspacePricingPlaysRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/headcount-plays': {
+      id: '/_workspace/headcount-plays'
+      path: '/headcount-plays'
+      fullPath: '/headcount-plays'
+      preLoaderRoute: typeof WorkspaceHeadcountPlaysRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/forecast-confidence': {
+      id: '/_workspace/forecast-confidence'
+      path: '/forecast-confidence'
+      fullPath: '/forecast-confidence'
+      preLoaderRoute: typeof WorkspaceForecastConfidenceRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/copilot': {
+      id: '/_workspace/copilot'
+      path: '/copilot'
+      fullPath: '/copilot'
+      preLoaderRoute: typeof WorkspaceCopilotRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/arr-waterfall': {
+      id: '/_workspace/arr-waterfall'
+      path: '/arr-waterfall'
+      fullPath: '/arr-waterfall'
+      preLoaderRoute: typeof WorkspaceArrWaterfallRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
   }
 }
 
 interface WorkspaceRouteChildren {
+  WorkspaceArrWaterfallRoute: typeof WorkspaceArrWaterfallRoute
+  WorkspaceCopilotRoute: typeof WorkspaceCopilotRoute
+  WorkspaceForecastConfidenceRoute: typeof WorkspaceForecastConfidenceRoute
+  WorkspaceHeadcountPlaysRoute: typeof WorkspaceHeadcountPlaysRoute
+  WorkspacePricingPlaysRoute: typeof WorkspacePricingPlaysRoute
   WorkspaceSequencingMarginLabRoute: typeof WorkspaceSequencingMarginLabRoute
+  WorkspaceSignalDeskRoute: typeof WorkspaceSignalDeskRoute
+  WorkspaceUtilizationSimulatorRoute: typeof WorkspaceUtilizationSimulatorRoute
+  WorkspaceVarianceNarratorRoute: typeof WorkspaceVarianceNarratorRoute
+  WorkspaceVendorPortfolioRoute: typeof WorkspaceVendorPortfolioRoute
   WorkspaceIndexRoute: typeof WorkspaceIndexRoute
 }
 
 const WorkspaceRouteChildren: WorkspaceRouteChildren = {
+  WorkspaceArrWaterfallRoute: WorkspaceArrWaterfallRoute,
+  WorkspaceCopilotRoute: WorkspaceCopilotRoute,
+  WorkspaceForecastConfidenceRoute: WorkspaceForecastConfidenceRoute,
+  WorkspaceHeadcountPlaysRoute: WorkspaceHeadcountPlaysRoute,
+  WorkspacePricingPlaysRoute: WorkspacePricingPlaysRoute,
   WorkspaceSequencingMarginLabRoute: WorkspaceSequencingMarginLabRoute,
+  WorkspaceSignalDeskRoute: WorkspaceSignalDeskRoute,
+  WorkspaceUtilizationSimulatorRoute: WorkspaceUtilizationSimulatorRoute,
+  WorkspaceVarianceNarratorRoute: WorkspaceVarianceNarratorRoute,
+  WorkspaceVendorPortfolioRoute: WorkspaceVendorPortfolioRoute,
   WorkspaceIndexRoute: WorkspaceIndexRoute,
 }
 
