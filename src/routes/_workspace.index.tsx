@@ -322,9 +322,7 @@ function Treasury() {
                       borderRadius: 8,
                       fontSize: 12,
                     }}
-                    formatter={((v: any, name: any) =>
-                      name === "arr" ? formatUsd(v) : `${v}%`
-                    }
+                    formatter={fmtUsdOrPct as any}
                   />
                   <Bar dataKey="arr" radius={[0, 6, 6, 0]}>
                     {arrByProduct.map((p, i) => (
