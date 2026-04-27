@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as WorkspaceIndexRouteImport } from './routes/_workspace.index'
+import { Route as WorkspaceSequencingMarginLabRouteImport } from './routes/_workspace.sequencing-margin-lab'
 
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/_workspace',
@@ -21,24 +22,37 @@ const WorkspaceIndexRoute = WorkspaceIndexRouteImport.update({
   path: '/',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceSequencingMarginLabRoute =
+  WorkspaceSequencingMarginLabRouteImport.update({
+    id: '/sequencing-margin-lab',
+    path: '/sequencing-margin-lab',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof WorkspaceIndexRoute
+  '/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
 }
 export interface FileRoutesByTo {
+  '/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
   '/': typeof WorkspaceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_workspace': typeof WorkspaceRouteWithChildren
+  '/_workspace/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
   '/_workspace/': typeof WorkspaceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/sequencing-margin-lab'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/_workspace' | '/_workspace/'
+  to: '/sequencing-margin-lab' | '/'
+  id:
+    | '__root__'
+    | '/_workspace'
+    | '/_workspace/sequencing-margin-lab'
+    | '/_workspace/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -61,14 +75,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceIndexRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/sequencing-margin-lab': {
+      id: '/_workspace/sequencing-margin-lab'
+      path: '/sequencing-margin-lab'
+      fullPath: '/sequencing-margin-lab'
+      preLoaderRoute: typeof WorkspaceSequencingMarginLabRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
   }
 }
 
 interface WorkspaceRouteChildren {
+  WorkspaceSequencingMarginLabRoute: typeof WorkspaceSequencingMarginLabRoute
   WorkspaceIndexRoute: typeof WorkspaceIndexRoute
 }
 
 const WorkspaceRouteChildren: WorkspaceRouteChildren = {
+  WorkspaceSequencingMarginLabRoute: WorkspaceSequencingMarginLabRoute,
   WorkspaceIndexRoute: WorkspaceIndexRoute,
 }
 
