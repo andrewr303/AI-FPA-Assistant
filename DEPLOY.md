@@ -40,29 +40,42 @@ npm run build    # outputs to ./dist
 npm run preview  # serve the built dist locally
 ```
 
-## Wiring up the AI copilot (optional)
+## Wiring up the AI copilot (PHP, lives on Hostinger itself)
 
-The Ask Finance drawer runs in "demo mode" out of the box. To make it actually
-call an LLM:
+The Ask Finance drawer (and every other AI button — variance brief, pricing
+recommendation, vendor rollout, forecast explainer) runs in "demo mode" until
+the PHP proxy is configured on Hostinger.
 
-```bash
-cd copilot-api
-npm install
-npx wrangler login
-npx wrangler secret put AI_GATEWAY_API_KEY   # paste your Vercel AI Gateway key
-npx wrangler deploy
-```
+The proxy is a single file: `php-api/copilot.php`. The deploy workflow already
+copies it (and its `.htaccess`) into `dist/api/` before the FTP push, so it
+ships alongside the SPA on the same domain.
 
-Wrangler prints the deployed Worker URL (e.g. `https://nooks-copilot-api.<you>.workers.dev`).
-Add that as the `VITE_COPILOT_API_URL` GitHub Actions secret and re-run the
-deploy workflow — the SPA will start hitting it automatically.
+**One-time Hostinger setup:**
 
-For tighter security, edit `copilot-api/wrangler.toml` and set
-`ALLOWED_ORIGIN` to your Hostinger domain (e.g.
-`https://nooks.andrewvrodriguez.com`) instead of `*`.
+1. After your first deploy, in **hPanel → Files → File Manager**, confirm
+   `public_html/api/copilot.php` and `public_html/api/.htaccess` exist.
+2. **hPanel → Advanced → PHP Configuration → PHP Variables**, add:
+   - `AI_GATEWAY_API_KEY` = `vck_…` (your Vercel AI Gateway key)
+   - Optional: `ALLOWED_ORIGIN` = `https://nooks.andrewvrodriguez.com` (locks
+     CORS to your domain instead of `*`)
+3. In GitHub Actions secrets, set `VITE_COPILOT_API_URL` to `/api`
+   (relative — no CORS issues since same origin).
+4. Confirm Hostinger's PHP version is 7.4+ (8.x preferred).
 
-## Why not Cloudflare Pages / Vercel for the SPA?
+**Endpoints (all POST, JSON in/out):**
 
-You can — the SPA build works on any static host. The Hostinger flow exists
-because that's what was asked for; the Cloudflare Worker copilot above is the
-only piece that *must* live on a JS-capable runtime.
+| Path | Purpose |
+| --- | --- |
+| `/api/ask-finance` | Conversational copilot drawer |
+| `/api/variance-brief` | Structured exec brief from variance records |
+| `/api/pricing-recommendation` | Pick the strongest pricing play |
+| `/api/vendor-rollout` | Scale/pilot/deprecate decisions across LLM models |
+| `/api/forecast-explainer` | One-paragraph note on forecast calibration |
+
+Each endpoint composes a tuned system prompt grounded in the Nooks brand voice
+(Operating Principles, current snapshot, formatting rules) and proxies the
+request to Vercel AI Gateway with the key kept server-side. See `php-api/copilot.php`.
+
+If you'd rather not run PHP, the same five endpoints can be hosted on any
+JS-capable runtime (Cloudflare Worker, Vercel function, Hostinger VPS Node);
+just point `VITE_COPILOT_API_URL` at it.

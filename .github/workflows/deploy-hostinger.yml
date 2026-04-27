@@ -25,6 +25,13 @@ jobs:
         env:
           VITE_COPILOT_API_URL: ${{ secrets.VITE_COPILOT_API_URL }}
 
+      # Bundle PHP API alongside the static dist so a single FTP push deploys both.
+      - name: Stage PHP API into dist
+        run: |
+          mkdir -p dist/api
+          cp php-api/copilot.php dist/api/
+          cp php-api/.htaccess dist/api/
+
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:

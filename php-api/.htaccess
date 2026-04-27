@@ -1,0 +1,12 @@
+# Pretty URLs for the copilot endpoints:
+#   POST /api/ask-finance              → copilot.php?action=ask-finance
+#   POST /api/variance-brief           → copilot.php?action=variance-brief
+#   POST /api/pricing-recommendation   → copilot.php?action=pricing-recommendation
+#   POST /api/vendor-rollout           → copilot.php?action=vendor-rollout
+#   POST /api/forecast-explainer       → copilot.php?action=forecast-explainer
+
+RewriteEngine On
+RewriteBase /api/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([a-z-]+)$ copilot.php?action=$1 [L,QSA]
