@@ -9,12 +9,19 @@ RewriteBase /
 # rewrite /api/ask-finance to index.html before /api/.htaccess runs.
 RewriteRule ^api(?:/|$) - [L]
 
-# Don't rewrite real files or directories (assets, favicon, etc.)
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
+# Server-side redirect for the legacy /treasury alias so old bookmarks never
+# trigger the client-side redirect dance that can leave the home page stuck.
+RewriteRule ^treasury/?$ / [R=301,L]
+
+# Don't rewrite real files (assets, favicon, etc.)
+# Note: the -d (directory) check is intentionally omitted so that the root
+# path "/" is explicitly served via the SPA fallback below rather than relying
+# on LiteSpeed's directory-index resolution, which can surface stale cached
+# pages on Hostinger.
+RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
-# Everything else → index.html (SPA handles routing)
+# Everything else (including the root "/") → index.html (SPA handles routing)
 RewriteRule ^ index.html [L]
 
 # Cache hashed assets aggressively, never cache index.html
