@@ -292,8 +292,8 @@ function Page() {
               )}
               {rec.error && (
                 <p className="text-[11px] text-warning mt-3">
-                  AI Gateway unavailable — configure server-side <code>AI_GATEWAY_API_KEY</code>{" "}
-                  for live AI rollout.
+                  AI Gateway unavailable — configure server-side <code>AI_GATEWAY_API_KEY</code> for
+                  live AI rollout.
                 </p>
               )}
             </Card>
