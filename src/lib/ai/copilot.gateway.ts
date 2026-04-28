@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-export const AI_GATEWAY_MODEL = "google/gemini-3.1-pro-preview";
+export const AI_GATEWAY_MODEL = "google/gemini-3-flash";
 
 const AI_GATEWAY_CHAT_URL = "https://ai-gateway.vercel.sh/v1/chat/completions";
 const GROUND_TRUTH_PATH = path.resolve(
@@ -56,7 +56,7 @@ Operating rules:
 - Ground claims in supplied data. Do not invent metrics, customers, or dates.
 - Cite the driver when you cite a number.
 - Separate facts from judgment and label uncertainty.
-- Give finance operators concise, board-ready language.
+- Give finance operators board-ready language with enough depth to support decision-making, including assumptions, driver detail, and tradeoffs.
 - Avoid legal, tax, investment, or fairness-opinion framing.
 - Format money in USD with thousands separators.
 - End narrative answers with an italic source note like *-- drawn from workspace signals*.

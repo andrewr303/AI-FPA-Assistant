@@ -11,6 +11,7 @@ import { askFinance, type Msg } from "@/lib/ai/copilot.functions";
 import { alerts, kpis, varianceRecords } from "@/lib/mock/data";
 import { Bot, Loader2, Send, Sparkles, User, RefreshCw, Eraser, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Streamdown } from "streamdown";
 
 export const Route = createFileRoute("/_workspace/copilot")({
   component: Page,
@@ -178,7 +179,13 @@ function Page() {
                       m.role === "user" ? "bg-primary/15" : "bg-background border border-border",
                     )}
                   >
-                    {m.content}
+                    {m.role === "assistant" ? (
+                      <div className="text-sm [&_p]:my-1 [&_li]:my-0.5 [&_ul]:my-2 [&_ol]:my-2">
+                        <Streamdown>{m.content}</Streamdown>
+                      </div>
+                    ) : (
+                      m.content
+                    )}
                   </div>
                 </div>
               ))}

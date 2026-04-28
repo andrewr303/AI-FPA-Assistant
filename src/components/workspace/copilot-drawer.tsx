@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Sparkles, Loader2, Send, User, Bot } from "lucide-react";
 import { askFinance } from "@/lib/ai/copilot.functions";
 import { cn } from "@/lib/utils";
+import { Streamdown } from "streamdown";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -137,7 +138,13 @@ export function CopilotDrawer({
                     : "bg-background border border-border",
                 )}
               >
-                {m.content}
+                {m.role === "assistant" ? (
+                  <div className="text-sm [&_p]:my-1 [&_li]:my-0.5 [&_ul]:my-2 [&_ol]:my-2">
+                    <Streamdown>{m.content}</Streamdown>
+                  </div>
+                ) : (
+                  m.content
+                )}
               </div>
             </div>
           ))}
