@@ -1,0 +1,26 @@
+{
+  "agents": [
+    {
+      "agent_id": "a9214f2f52d6cb6f9",
+      "agent_type": "Explore",
+      "started_at": "2026-04-28T04:37:21.506Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-04-28T04:37:56.127Z",
+      "duration_ms": 34621
+    },
+    {
+      "agent_id": "ae92b17a5f181ce82",
+      "agent_type": "Plan",
+      "started_at": "2026-04-28T04:38:49.820Z",
+      "parent_mode": "none",
+      "status": "completed",
+      "completed_at": "2026-04-28T04:40:06.904Z",
+      "duration_ms": 77084
+    }
+  ],
+  "total_spawned": 2,
+  "total_completed": 2,
+  "total_failed": 0,
+  "last_updated": "2026-04-28T04:40:07.021Z"
+}

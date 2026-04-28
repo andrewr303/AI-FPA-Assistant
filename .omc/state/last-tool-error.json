@@ -1,7 +1,7 @@
 {
-  "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"c:\\\\dev\\\\mindful-executor\\\\.claude\\\\skills\\\\autoresearch\\\\references\\\\debug-workflow.md\"}",
-  "error": "File does not exist. Note: your current working directory is c:\\dev\\mindful-executor.",
-  "timestamp": "2026-04-28T03:28:53.134Z",
+  "tool_name": "mcp__claude_ai_Supabase__list_edge_functions",
+  "tool_input_preview": "{\"project_id\":\"iammsenkkccvbvcucuom\"}",
+  "error": "{\"error\":{\"name\":\"McpError\",\"message\":\"MCP error -32600: You do not have permission to perform this action\"}}",
+  "timestamp": "2026-04-28T05:46:48.923Z",
   "retry_count": 1
 }
