@@ -22,15 +22,15 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-        env:
-          VITE_COPILOT_API_URL: ${{ secrets.VITE_COPILOT_API_URL }}
 
       # Bundle PHP API alongside the static dist so a single FTP push deploys both.
       - name: Stage PHP API into dist
         run: |
           mkdir -p dist/api
+          mkdir -p dist/api/ground-truth
           cp php-api/copilot.php dist/api/
           cp php-api/.htaccess dist/api/
+          cp ai-knowledge/ground-truth/nooks-ground-truth.md dist/api/ground-truth/
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

@@ -194,7 +194,7 @@ function Page() {
                     borderRadius: 8,
                     fontSize: 12,
                   }}
-                  formatter={(v: unknown, name: string) => {
+                  formatter={(v, name) => {
                     if (name === "Cost/action") return `$${Number(v).toFixed(4)}`;
                     return Number(v).toFixed(1);
                   }}
@@ -292,7 +292,8 @@ function Page() {
               )}
               {rec.error && (
                 <p className="text-[11px] text-warning mt-3">
-                  Demo mode — set <code>VITE_COPILOT_API_URL</code> for live AI rollout.
+                  AI Gateway unavailable — configure server-side <code>AI_GATEWAY_API_KEY</code>{" "}
+                  for live AI rollout.
                 </p>
               )}
             </Card>

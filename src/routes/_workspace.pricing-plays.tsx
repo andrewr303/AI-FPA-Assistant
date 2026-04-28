@@ -90,7 +90,7 @@ function Page() {
                 key={p.id}
                 className={cn(
                   "p-5 bg-card relative",
-                  isBest && "border-primary/60 bg-gradient-to-br from-accent/30 to-card",
+                  isBest && "border-primary/60 bg-linear-to-br from-accent/30 to-card",
                 )}
               >
                 {isBest && (
@@ -145,9 +145,9 @@ function Page() {
         </Card>
 
         {rec && (
-          <Card className="p-6 bg-gradient-to-br from-accent/30 to-card border-primary/30">
+          <Card className="p-6 bg-linear-to-br from-accent/30 to-card border-primary/30">
             <div className="flex items-start gap-3">
-              <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center shrink-0">
+              <div className="h-9 w-9 rounded-lg bg-linear-to-br from-primary to-primary/40 flex items-center justify-center shrink-0">
                 <Trophy className="h-4 w-4 text-primary-foreground" />
               </div>
               <div className="flex-1">
@@ -175,7 +175,8 @@ function Page() {
                 )}
                 {rec.error && (
                   <p className="text-[11px] text-warning mt-4">
-                    Demo mode — set <code>VITE_COPILOT_API_URL</code> for live AI rationale.
+                    AI Gateway unavailable — configure server-side <code>AI_GATEWAY_API_KEY</code>{" "}
+                    for live AI rationale.
                   </p>
                 )}
               </div>

@@ -1,7 +1,6 @@
-// Client-side AI copilot bindings. Call a server endpoint defined by
-// VITE_COPILOT_API_URL (e.g. https://nooks.andrewvrodriguez.com/api).
-// Each function falls back to a sensible "demo mode" response when no
-// endpoint is configured, so the SPA still renders without an API.
+// Client-side AI copilot bindings. Calls the same-origin /api proxy by default.
+// The proxy keeps AI_GATEWAY_API_KEY server-side and sends requests to Vercel AI
+// Gateway. A Vite override is still honored for nonstandard deployments.
 
 import {
   alerts,
@@ -14,19 +13,20 @@ import {
 
 export type Msg = { role: "user" | "assistant" | "system"; content: string };
 
-const COPILOT_API = (import.meta.env.VITE_COPILOT_API_URL as string | undefined)?.replace(
-  /\/$/,
-  "",
-);
+const COPILOT_API = (
+  (import.meta.env.VITE_COPILOT_API_URL as string | undefined) || "/api"
+).replace(/\/$/, "");
 
 async function call<T>(path: string, body: unknown): Promise<T | null> {
-  if (!COPILOT_API) return null;
   const res = await fetch(`${COPILOT_API}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`copilot ${res.status}`);
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`copilot ${res.status}${detail ? `: ${detail}` : ""}`);
+  }
   return (await res.json()) as T;
 }
 
@@ -57,8 +57,8 @@ function buildContext() {
   };
 }
 
-const DEMO_NOTE =
-  "Demo mode — set VITE_COPILOT_API_URL to a Hostinger /api endpoint to enable live AI.\n\n*— drawn from build config*";
+const FALLBACK_NOTE =
+  "AI Gateway is not available yet. Configure the server-side AI_GATEWAY_API_KEY and retry.\n\n*-- drawn from runtime AI configuration*";
 
 // ============= /ask-finance =============
 
@@ -74,9 +74,9 @@ export async function askFinance(args: { data: { messages: Msg[] } }): Promise<{
     if (r) return r;
   } catch (e) {
     console.error("[ask-finance]", e);
-    return { reply: "Copilot error — please retry.", error: true };
+    return { reply: FALLBACK_NOTE, error: true };
   }
-  return { reply: DEMO_NOTE, error: true };
+  return { reply: FALLBACK_NOTE, error: true };
 }
 
 // ============= /variance-brief =============
@@ -98,7 +98,7 @@ export async function varianceBrief(args: { data: { period: string } }): Promise
     console.error("[variance-brief]", e);
   }
   return {
-    headline: `Variance brief for ${args.data.period} is offline (demo mode).`,
+    headline: `Variance brief for ${args.data.period} is offline (AI Gateway unavailable).`,
     drivers: records.slice(0, 3).map((r) => {
       const delta = r.actual - r.plan;
       const favorable =
@@ -109,7 +109,7 @@ export async function varianceBrief(args: { data: { period: string } }): Promise
         direction: favorable ? ("favorable" as const) : ("unfavorable" as const),
       };
     }),
-    risks: ["Set VITE_COPILOT_API_URL to enable live AI commentary."],
+    risks: ["Configure server-side AI_GATEWAY_API_KEY to enable live AI commentary."],
     recommendations: [],
     error: true,
   };
@@ -144,12 +144,12 @@ export async function pricingRecommendation(plays: PricingPlay[]): Promise<Prici
   } catch (e) {
     console.error("[pricing-recommendation]", e);
   }
-  // Demo: pick highest Rule of 40
+  // Fallback: pick highest Rule of 40.
   const best = [...plays].sort((a, b) => b.rule_of_40_score - a.rule_of_40_score)[0];
   return {
     recommended_id: best?.id ?? "",
     rationale:
-      "Demo mode: chose highest Rule-of-40. Live AI rationale requires VITE_COPILOT_API_URL.",
+      "Fallback mode: chose highest Rule-of-40. Live AI rationale requires server-side AI_GATEWAY_API_KEY.",
     risks: [],
     error: true,
   };
@@ -187,7 +187,7 @@ export async function vendorRollout(
     scale: ["claude-sonnet-4.6"],
     pilot: ["gemini-3-flash"],
     deprecate: [],
-    rationale: "Demo mode: rule-of-thumb suggestion. Live AI requires VITE_COPILOT_API_URL.",
+    rationale: "Fallback mode: rule-of-thumb suggestion. Live AI requires server-side AI_GATEWAY_API_KEY.",
     concentration_warning: mix.find((m) => m.share > 60)
       ? `${mix.find((m) => m.share > 60)?.vendor} concentration above 60% threshold.`
       : null,
@@ -209,7 +209,7 @@ export async function forecastExplainer(history: unknown[]): Promise<{
   }
   return {
     reply:
-      "Forecast accuracy on LLM COGS deteriorated sharply after February 2026 — driven by the Opus 4.7 tokenizer change which added ~35% to coding-agent token counts that the model never saw during training. New-ARR forecasts have actually improved as Sequencing pipeline matured. *— demo mode commentary*",
+      "Forecast accuracy on LLM COGS deteriorated sharply after February 2026 -- driven by the Opus 4.7 tokenizer change which added about 35% to coding-agent token counts that the model never saw during training. New ARR forecasts have improved as Sequencing pipeline matured. *-- fallback commentary*",
     error: true,
   };
 }

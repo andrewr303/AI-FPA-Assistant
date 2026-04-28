@@ -79,7 +79,7 @@ function Page() {
       <div className="flex-1 px-6 py-6 space-y-6 max-w-[1600px] w-full">
         <OperatingPrinciple principle={meta.principle} />
         <Card className="p-10 bg-card border-dashed border-border flex flex-col items-center justify-center text-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center">
+          <div className="h-12 w-12 rounded-xl bg-linear-to-br from-primary to-primary/40 flex items-center justify-center">
             <Sparkles className="h-5 w-5 text-primary-foreground" />
           </div>
           <div className="text-lg font-semibold">{meta.title} — module loading</div>

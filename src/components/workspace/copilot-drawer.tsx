@@ -58,7 +58,14 @@ export function CopilotDrawer({
       const res = await ask({ data: { messages: next } });
       setMessages([...next, { role: "assistant", content: res.reply }]);
     } catch {
-      setMessages([...next, { role: "assistant", content: "Copilot error — please retry." }]);
+      setMessages([
+        ...next,
+        {
+          role: "assistant",
+          content:
+            "AI Gateway is not available yet. Configure the server-side AI_GATEWAY_API_KEY and retry.",
+        },
+      ]);
     } finally {
       setBusy(false);
     }
@@ -72,7 +79,7 @@ export function CopilotDrawer({
       >
         <SheetHeader className="px-5 pt-5 pb-3 border-b border-border">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-md bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center">
+            <div className="h-7 w-7 rounded-md bg-linear-to-br from-primary to-primary/40 flex items-center justify-center">
               <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
             <div>
@@ -113,7 +120,7 @@ export function CopilotDrawer({
                   "h-7 w-7 rounded-md shrink-0 flex items-center justify-center",
                   m.role === "user"
                     ? "bg-accent text-accent-foreground"
-                    : "bg-gradient-to-br from-primary to-primary/40 text-primary-foreground",
+                    : "bg-linear-to-br from-primary to-primary/40 text-primary-foreground",
                 )}
               >
                 {m.role === "user" ? (
@@ -136,7 +143,7 @@ export function CopilotDrawer({
           ))}
           {busy && (
             <div className="flex gap-2.5 items-center text-xs text-muted-foreground">
-              <div className="h-7 w-7 rounded-md bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center">
+              <div className="h-7 w-7 rounded-md bg-linear-to-br from-primary to-primary/40 flex items-center justify-center">
                 <Loader2 className="h-3.5 w-3.5 animate-spin text-primary-foreground" />
               </div>
               Reasoning across signals…
