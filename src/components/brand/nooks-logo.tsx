@@ -10,7 +10,7 @@ export function NooksLogo({
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <div
-        className="h-7 w-7 rounded-md bg-gradient-to-br from-primary via-primary to-primary/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_12px_-2px_color-mix(in_oklab,var(--primary)_50%,transparent)]"
+        className="h-7 w-7 rounded-md bg-linear-to-br from-primary via-primary to-primary/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_12px_-2px_color-mix(in_oklab,var(--primary)_50%,transparent)]"
         aria-hidden
       />
       <div className="flex flex-col leading-none">

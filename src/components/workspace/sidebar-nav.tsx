@@ -75,7 +75,7 @@ export function SidebarNav() {
         ))}
       </nav>
       <div className="border-t border-sidebar-border p-4">
-        <div className="rounded-lg bg-gradient-to-br from-accent to-accent/30 p-3 border border-primary/20">
+        <div className="rounded-lg bg-linear-to-br from-accent to-accent/30 p-3 border border-primary/20">
           <div className="text-[10px] uppercase tracking-widest text-accent-foreground/80 font-semibold mb-1">
             Demo build
           </div>

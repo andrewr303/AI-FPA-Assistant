@@ -116,9 +116,27 @@
   },
   "hotPaths": [
     {
+      "path": "src\\routes\\_workspace.sequencing-margin-lab.tsx",
+      "accessCount": 14,
+      "lastAccessed": 1777332730122,
+      "type": "file"
+    },
+    {
       "path": "src\\routes\\_workspace.index.tsx",
-      "accessCount": 8,
-      "lastAccessed": 1777326860815,
+      "accessCount": 10,
+      "lastAccessed": 1777332745656,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\workspace\\copilot-drawer.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1777332767276,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.vendor-portfolio.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1777332912014,
       "type": "file"
     },
     {
@@ -128,9 +146,15 @@
       "type": "file"
     },
     {
-      "path": "src\\components\\workspace\\copilot-drawer.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1777326251603,
+      "path": "src\\routes\\_workspace.pricing-plays.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777332764070,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.variance-narrator.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777332769763,
       "type": "file"
     },
     {
@@ -152,6 +176,36 @@
       "type": "file"
     },
     {
+      "path": "package.json",
+      "accessCount": 3,
+      "lastAccessed": 1777332576999,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.utilization-simulator.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1777332639984,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.headcount-plays.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1777332640614,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.forecast-confidence.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1777332641073,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\workspace\\sidebar-nav.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1777332765466,
+      "type": "file"
+    },
+    {
       "path": "src\\routes\\__root.tsx",
       "accessCount": 2,
       "lastAccessed": 1777326221027,
@@ -164,45 +218,9 @@
       "type": "file"
     },
     {
-      "path": "package.json",
-      "accessCount": 2,
-      "lastAccessed": 1777326286031,
-      "type": "file"
-    },
-    {
-      "path": "src\\routes\\_workspace.variance-narrator.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1777330389265,
-      "type": "file"
-    },
-    {
-      "path": "src\\routes\\_workspace.pricing-plays.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1777330418533,
-      "type": "file"
-    },
-    {
       "path": "src\\routes\\_workspace.signal-desk.tsx",
       "accessCount": 2,
       "lastAccessed": 1777330550244,
-      "type": "file"
-    },
-    {
-      "path": "src\\routes\\_workspace.vendor-portfolio.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1777330601968,
-      "type": "file"
-    },
-    {
-      "path": "src\\routes\\_workspace.forecast-confidence.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1777330629054,
-      "type": "file"
-    },
-    {
-      "path": "src\\routes\\_workspace.utilization-simulator.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1777330884216,
       "type": "file"
     },
     {
@@ -212,9 +230,15 @@
       "type": "file"
     },
     {
-      "path": "src\\routes\\_workspace.headcount-plays.tsx",
+      "path": "src\\components\\brand\\nooks-logo.tsx",
       "accessCount": 2,
-      "lastAccessed": 1777330965887,
+      "lastAccessed": 1777332761156,
+      "type": "file"
+    },
+    {
+      "path": "src\\routes\\_workspace.copilot.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777332762678,
       "type": "file"
     },
     {
@@ -222,12 +246,6 @@
       "accessCount": 1,
       "lastAccessed": 1777326084520,
       "type": "directory"
-    },
-    {
-      "path": "src\\components\\workspace\\sidebar-nav.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1777326091193,
-      "type": "file"
     },
     {
       "path": "wrangler.jsonc",
@@ -317,6 +335,12 @@
       "path": "src\\lib\\format.ts",
       "accessCount": 1,
       "lastAccessed": 1777330353302,
+      "type": "file"
+    },
+    {
+      "path": "src\\styles.css",
+      "accessCount": 1,
+      "lastAccessed": 1777332504272,
       "type": "file"
     }
   ],

@@ -374,26 +374,33 @@ function Page() {
               </div>
 
               <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <BarChart
                     data={vendorBreakdown}
                     margin={{ top: 8, right: 8, left: 8, bottom: 8 }}
                   >
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="hsl(var(--border))"
+                      stroke="var(--border)"
                       opacity={0.3}
                     />
-                    <XAxis dataKey="vendor" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                    <XAxis
+                      dataKey="vendor"
+                      tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                      axisLine={{ stroke: "var(--border)" }}
+                      tickLine={false}
+                    />
                     <YAxis
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={11}
+                      tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                       tickFormatter={(v) => `$${(v as number).toFixed(4)}`}
+                      axisLine={false}
+                      tickLine={false}
                     />
                     <Tooltip
+                      cursor={{ fill: "color-mix(in oklab, var(--primary) 8%, transparent)" }}
                       contentStyle={{
-                        background: "hsl(var(--popover))",
-                        border: "1px solid hsl(var(--border))",
+                        backgroundColor: "var(--popover)",
+                        border: "1px solid var(--border)",
                         borderRadius: 8,
                         fontSize: 12,
                       }}
@@ -401,7 +408,7 @@ function Page() {
                     />
                     <Bar dataKey="contribution" radius={[6, 6, 0, 0]}>
                       {vendorBreakdown.map((_, i) => (
-                        <Cell key={i} fill={`hsl(var(--chart-${(i % 5) + 1}))`} />
+                        <Cell key={i} fill={`var(--chart-${(i % 5) + 1})`} />
                       ))}
                     </Bar>
                   </BarChart>
@@ -442,23 +449,30 @@ function Page() {
                 <Zap className="h-4 w-4 text-primary" />
               </div>
               <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <LineChart data={cacheCurve} margin={{ top: 8, right: 20, left: 8, bottom: 8 }}>
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="hsl(var(--border))"
+                      stroke="var(--border)"
                       opacity={0.3}
                     />
-                    <XAxis dataKey="cache" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                    <XAxis
+                      dataKey="cache"
+                      tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
+                      axisLine={{ stroke: "var(--border)" }}
+                      tickLine={false}
+                    />
                     <YAxis
-                      stroke="hsl(var(--muted-foreground))"
-                      fontSize={11}
+                      tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
                       tickFormatter={(v) => `$${(v as number).toFixed(4)}`}
+                      axisLine={false}
+                      tickLine={false}
                     />
                     <Tooltip
+                      cursor={{ stroke: "var(--border)", strokeDasharray: "3 3" }}
                       contentStyle={{
-                        background: "hsl(var(--popover))",
-                        border: "1px solid hsl(var(--border))",
+                        backgroundColor: "var(--popover)",
+                        border: "1px solid var(--border)",
                         borderRadius: 8,
                         fontSize: 12,
                       }}
@@ -467,9 +481,10 @@ function Page() {
                     <Line
                       type="monotone"
                       dataKey="cost"
-                      stroke="hsl(var(--primary))"
+                      stroke="var(--primary)"
                       strokeWidth={2}
-                      dot={{ r: 3, fill: "hsl(var(--primary))" }}
+                      dot={{ r: 3, fill: "var(--primary)", stroke: "var(--primary)" }}
+                      activeDot={{ r: 5, fill: "var(--primary)", stroke: "var(--background)", strokeWidth: 2 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -503,6 +518,7 @@ function Page() {
               return (
                 <button
                   key={p.name}
+                  type="button"
                   onClick={() => applyPreset(p.scenario)}
                   className="text-left rounded-xl border border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-colors p-4 space-y-2"
                 >
@@ -567,7 +583,7 @@ function Page() {
         </Card>
 
         {/* Agent nudge */}
-        <Card className="p-5 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/30">
+        <Card className="p-5 bg-linear-to-br from-primary/10 via-primary/5 to-transparent border-primary/30">
           <div className="flex items-start gap-3">
             <div className="h-9 w-9 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
               <Sparkles className="h-4 w-4 text-primary" />
@@ -645,7 +661,7 @@ function OutcomeTile({
   return (
     <Card
       className={`p-4 ${
-        emphasize ? "bg-gradient-to-br from-primary/15 to-transparent border-primary/40" : ""
+        emphasize ? "bg-linear-to-br from-primary/15 to-transparent border-primary/40" : ""
       }`}
     >
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>

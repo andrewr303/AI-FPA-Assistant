@@ -163,9 +163,9 @@ function Page() {
         {/* AI Brief */}
         {brief && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card className="lg:col-span-2 p-6 bg-gradient-to-br from-accent/30 to-card border-primary/30">
+            <Card className="lg:col-span-2 p-6 bg-linear-to-br from-accent/30 to-card border-primary/30">
               <div className="flex items-start gap-3">
-                <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center shrink-0">
+                <div className="h-9 w-9 rounded-lg bg-linear-to-br from-primary to-primary/40 flex items-center justify-center shrink-0">
                   <Sparkles className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <div>
@@ -239,7 +239,8 @@ function Page() {
               </ul>
               {brief.error && (
                 <p className="text-[11px] text-warning mt-4">
-                  Demo mode — set <code>VITE_COPILOT_API_URL</code> for live AI commentary.
+                  AI Gateway unavailable — configure server-side <code>AI_GATEWAY_API_KEY</code>{" "}
+                  for live AI commentary.
                 </p>
               )}
             </Card>

@@ -177,7 +177,7 @@ function Treasury() {
             series={headcountSeries}
             onClick={() => copilot.open("Where are we over-hiring vs plan?")}
           />
-          <Card className="p-5 border-primary/40 bg-gradient-to-br from-accent/40 to-card">
+          <Card className="p-5 border-primary/40 bg-linear-to-br from-accent/40 to-card">
             <div className="text-[10px] uppercase tracking-widest text-accent-foreground font-semibold mb-2">
               Runway
             </div>
