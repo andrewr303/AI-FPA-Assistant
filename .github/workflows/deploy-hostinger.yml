@@ -40,7 +40,12 @@ jobs:
           password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
           server-dir: ${{ secrets.HOSTINGER_FTP_DIR }}
           local-dir: ./dist/
-          dangerous-clean-slate: false
+          # Mirror dist/ exactly. Removes stale per-route subdirectories left
+          # behind by the old TanStack Start (SSR) build (e.g. /treasury/,
+          # /signal-desk/) which otherwise shadow the SPA index.html fallback
+          # and serve broken pages with dead asset references.
+          # Safe: PHP API is staged into dist/api/ above, so it ships every push.
+          dangerous-clean-slate: true
           exclude: |
             **/.git*
             **/.git*/**
