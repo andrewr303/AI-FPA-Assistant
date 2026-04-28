@@ -26,7 +26,8 @@ function copilotDevApi(): Plugin {
           return;
         }
 
-        if (req.method !== "POST") {
+        const isDiagnostic = action === "diagnostic";
+        if (req.method !== "POST" && !(req.method === "GET" && isDiagnostic)) {
           res.statusCode = 405;
           res.setHeader("Content-Type", "application/json");
           res.end(JSON.stringify({ error: "method not allowed" }));
@@ -34,21 +35,24 @@ function copilotDevApi(): Plugin {
         }
 
         try {
-          const body = await new Promise<unknown>((resolve, reject) => {
-            let raw = "";
-            req.setEncoding("utf8");
-            req.on("data", (chunk: string) => {
-              raw += chunk;
-            });
-            req.on("end", () => {
-              try {
-                resolve(raw ? JSON.parse(raw) : {});
-              } catch (error) {
-                reject(error);
-              }
-            });
-            req.on("error", reject);
-          });
+          const body =
+            req.method === "POST"
+              ? await new Promise<unknown>((resolve, reject) => {
+                  let raw = "";
+                  req.setEncoding("utf8");
+                  req.on("data", (chunk: string) => {
+                    raw += chunk;
+                  });
+                  req.on("end", () => {
+                    try {
+                      resolve(raw ? JSON.parse(raw) : {});
+                    } catch (error) {
+                      reject(error);
+                    }
+                  });
+                  req.on("error", reject);
+                })
+              : {};
 
           const payload = await handleCopilotAction(action, body, { apiKey });
           res.statusCode = 200;

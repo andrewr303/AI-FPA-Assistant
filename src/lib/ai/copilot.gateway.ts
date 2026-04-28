@@ -237,6 +237,61 @@ export async function handleCopilotAction(
   const body = asObject(bodyInput);
 
   switch (action) {
+    case "diagnostic": {
+      const apiKeyPresent = config.apiKey.trim() !== "";
+      const sources = {
+        getenv: false,
+        _ENV: false,
+        _SERVER: false,
+        redirect_SERVER: false,
+        apache_getenv: false,
+        env_file: false,
+        "vite-env": apiKeyPresent,
+      };
+      const found = Object.entries(sources)
+        .filter(([, present]) => present)
+        .map(([name]) => name);
+
+      let groundTruthReadable = false;
+      let groundTruthPath: string | null = null;
+      try {
+        readFileSync(GROUND_TRUTH_PATH, "utf8");
+        groundTruthReadable = true;
+        groundTruthPath = GROUND_TRUTH_PATH;
+      } catch {
+        groundTruthReadable = false;
+      }
+
+      const reach: { ok: boolean; http_code: number; error: string | null } = {
+        ok: false,
+        http_code: 0,
+        error: null,
+      };
+      try {
+        const probe = await fetch("https://ai-gateway.vercel.sh/", {
+          method: "HEAD",
+          signal: AbortSignal.timeout(5000),
+        });
+        reach.http_code = probe.status;
+        reach.ok = probe.status > 0;
+      } catch (probeErr) {
+        reach.error = probeErr instanceof Error ? probeErr.message : String(probeErr);
+      }
+
+      return {
+        ok: apiKeyPresent && groundTruthReadable && reach.ok,
+        api_key_present: apiKeyPresent,
+        api_key_sources: found,
+        api_key_source_map: sources,
+        php_version: null,
+        php_sapi: "vite-dev",
+        ground_truth: { readable: groundTruthReadable, path: groundTruthPath },
+        gateway_reachable: reach,
+        configured_model: AI_GATEWAY_MODEL,
+        allowed_origin: "*",
+      };
+    }
+
     case "ask-finance": {
       const messages = toMessages(body.messages);
       const context = body.context;
