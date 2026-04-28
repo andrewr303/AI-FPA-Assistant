@@ -5,6 +5,10 @@ Options -MultiViews
 RewriteEngine On
 RewriteBase /
 
+# Let the PHP copilot proxy own /api/* routes. Without this, the SPA fallback can
+# rewrite /api/ask-finance to index.html before /api/.htaccess runs.
+RewriteRule ^api(?:/|$) - [L]
+
 # Don't rewrite real files or directories (assets, favicon, etc.)
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d

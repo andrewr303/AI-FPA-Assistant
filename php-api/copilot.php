@@ -21,21 +21,62 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405); echo json_encode(['error' => 'method not allowed']); exit;
 }
 
-$apiKey = getenv('AI_GATEWAY_API_KEY');
+function read_env_file_value(string $name): string {
+    $paths = [
+        __DIR__ . '/.env',
+        dirname(__DIR__) . '/.env',
+        dirname(__DIR__) . '/.env.local',
+        ($_SERVER['DOCUMENT_ROOT'] ?? '') . '/../.env',
+    ];
+    foreach ($paths as $path) {
+        if (!$path || !is_readable($path)) continue;
+        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (!$lines) continue;
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || strpos($line, '#') === 0) continue;
+            [$key, $value] = array_pad(explode('=', $line, 2), 2, '');
+            if (trim($key) !== $name) continue;
+            return trim($value, " \t\n\r\0\x0B\"'");
+        }
+    }
+    return '';
+}
+
+function read_config(string $name): string {
+    $candidates = [
+        getenv($name) ?: '',
+        $_ENV[$name] ?? '',
+        $_SERVER[$name] ?? '',
+        $_SERVER['REDIRECT_' . $name] ?? '',
+        function_exists('apache_getenv') ? (apache_getenv($name) ?: '') : '',
+        read_env_file_value($name),
+    ];
+    foreach ($candidates as $value) {
+        $value = is_string($value) ? trim($value) : '';
+        if ($value !== '') return $value;
+    }
+    return '';
+}
+
+$apiKey = read_config('AI_GATEWAY_API_KEY');
 if (!$apiKey) {
     http_response_code(500);
-    echo json_encode(['error' => 'AI_GATEWAY_API_KEY not configured on the server']); exit;
+    echo json_encode([
+        'error' => 'AI_GATEWAY_API_KEY not configured on the server',
+        'code' => 'missing_ai_gateway_api_key',
+    ]); exit;
 }
 
 $action = $_GET['action'] ?? '';
 $body   = json_decode(file_get_contents('php://input') ?: '{}', true) ?? [];
 
 const GATEWAY = 'https://ai-gateway.vercel.sh/v1/chat/completions';
-const MODEL   = 'google/gemini-3.1-pro-preview';
+$configuredModel = read_config('AI_GATEWAY_MODEL') ?: 'google/gemini-3.1-pro-preview';
 
-function call_gateway(string $apiKey, array $messages, int $maxTokens, float $temp, bool $jsonMode = false): string {
+function call_gateway(string $apiKey, string $model, array $messages, int $maxTokens, float $temp, bool $jsonMode = false): string {
     $payload = [
-        'model' => MODEL,
+        'model' => $model,
         'messages' => $messages,
         'max_tokens' => $maxTokens,
         'temperature' => $temp,
@@ -203,7 +244,7 @@ try {
                     'content' => "Live workspace context (JSON):\n" . json_encode($context)];
             }
             foreach ($messages as $m) $payload[] = $m;
-            $reply = call_gateway($apiKey, $payload, 700, 0.35);
+            $reply = call_gateway($apiKey, $configuredModel, $payload, 700, 0.35);
             echo json_encode(['reply' => $reply ?: 'The agent is still listening.', 'error' => false]);
             break;
         }
@@ -217,7 +258,7 @@ try {
                     . "Return ONLY a JSON object (no fences) of shape:\n"
                     . '{ "headline": string, "drivers": {"name":string,"impact_usd":number,"direction":"favorable"|"unfavorable"}[], "risks": string[], "recommendations": string[] }' . "\n"
                     . "Headline must include one specific dollar variance. Drivers must reflect favorable/unfavorable finance logic. Risks and recommendations should be concrete and non-alarmist.";
-            $raw = call_gateway($apiKey,
+            $raw = call_gateway($apiKey, $configuredModel,
                 [['role' => 'system', 'content' => $NOOKS_SYSTEM],
                  ['role' => 'system', 'content' => ground_truth_context($action)],
                  ['role' => 'user',   'content' => $prompt]], 800, 0.25, true);
@@ -235,7 +276,7 @@ try {
                     . "Return ONLY a JSON object of shape:\n"
                     . '{ "recommended_id": string, "rationale": string, "risks": string[] }' . "\n"
                     . "Prefer the option that best balances ARR, NRR, gross margin, and Rule of 40. Rationale must cite at least two supplied numbers. Include 2-3 risks.";
-            $raw = call_gateway($apiKey,
+            $raw = call_gateway($apiKey, $configuredModel,
                 [['role' => 'system', 'content' => $NOOKS_SYSTEM],
                  ['role' => 'system', 'content' => ground_truth_context($action)],
                  ['role' => 'user',   'content' => $prompt]], 650, 0.25, true);
@@ -256,7 +297,7 @@ try {
                     . "Return ONLY a JSON object of shape:\n"
                     . '{ "scale": string[], "pilot": string[], "deprecate": string[], "rationale": string, "concentration_warning": string|null }' . "\n"
                     . "Each list must contain model_name strings from the input. Rationale must cite cost per action, quality, or concentration risk. Flag any vendor above 60% share.";
-            $raw = call_gateway($apiKey,
+            $raw = call_gateway($apiKey, $configuredModel,
                 [['role' => 'system', 'content' => $NOOKS_SYSTEM],
                  ['role' => 'system', 'content' => ground_truth_context($action)],
                  ['role' => 'user',   'content' => $prompt]], 750, 0.25, true);
@@ -275,7 +316,7 @@ try {
                     . "History JSON:\n"
                     . json_encode($history, JSON_PRETTY_PRINT) . "\n\n"
                     . "End with one italic citation.";
-            $reply = call_gateway($apiKey,
+            $reply = call_gateway($apiKey, $configuredModel,
                 [['role' => 'system', 'content' => $NOOKS_SYSTEM],
                  ['role' => 'system', 'content' => ground_truth_context($action)],
                  ['role' => 'user',   'content' => $prompt]], 450, 0.35);

@@ -17,12 +17,30 @@ const COPILOT_API = (
   (import.meta.env.VITE_COPILOT_API_URL as string | undefined) || "/api"
 ).replace(/\/$/, "");
 
+const PRETTY_API_ROUTE_PATTERN = /^\/[a-z-]+$/;
+
+function shouldTryPhpFallback(path: string, status: number, contentType: string): boolean {
+  return (
+    COPILOT_API === "/api" &&
+    PRETTY_API_ROUTE_PATTERN.test(path) &&
+    (status === 404 ||
+      status === 405 ||
+      contentType.includes("text/html") ||
+      contentType.includes("text/plain"))
+  );
+}
+
 async function call<T>(path: string, body: unknown): Promise<T | null> {
-  const res = await fetch(`${COPILOT_API}${path}`, {
+  const init: RequestInit = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
-  });
+  };
+  let res = await fetch(`${COPILOT_API}${path}`, init);
+  const contentType = res.headers.get("content-type") ?? "";
+  if (shouldTryPhpFallback(path, res.status, contentType)) {
+    res = await fetch(`${COPILOT_API}/copilot.php?action=${encodeURIComponent(path.slice(1))}`, init);
+  }
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
     throw new Error(`copilot ${res.status}${detail ? `: ${detail}` : ""}`);
