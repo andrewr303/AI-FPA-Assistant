@@ -34,6 +34,14 @@ function shouldTryPhpFallback(path: string, status: number, contentType: string)
   );
 }
 
+export const COPILOT_MISSING_KEY = "missing_ai_gateway_api_key";
+
+export type CopilotError = Error & { code?: string; status?: number };
+
+export function isMissingKeyError(e: unknown): boolean {
+  return (e as { code?: string } | null)?.code === COPILOT_MISSING_KEY;
+}
+
 async function call<T>(path: string, body: unknown): Promise<T | null> {
   const init: RequestInit = {
     method: "POST",
@@ -46,10 +54,30 @@ async function call<T>(path: string, body: unknown): Promise<T | null> {
     res = await fetch(`${COPILOT_API}/copilot.php?action=${encodeURIComponent(path.slice(1))}`, init);
   }
   if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    throw new Error(`copilot ${res.status}${detail ? `: ${detail}` : ""}`);
+    const raw = await res.text().catch(() => "");
+    let code: string | undefined;
+    try {
+      code = (JSON.parse(raw) as { code?: string }).code;
+    } catch {
+      // body wasn't JSON; leave code undefined
+    }
+    const err: CopilotError = new Error(
+      `copilot ${res.status}${code ? ` [${code}]` : ""}${raw ? `: ${raw}` : ""}`,
+    );
+    err.code = code;
+    err.status = res.status;
+    if (code === COPILOT_MISSING_KEY && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("copilot:missing-key"));
+    }
+    throw err;
   }
   return (await res.json()) as T;
+}
+
+function fallbackNote(e: unknown, defaultMessage: string): string {
+  return isMissingKeyError(e)
+    ? "AI Gateway key is not configured on the server. Open /api/diagnostic to see which Hostinger config source needs the key (see DEPLOY.md → Troubleshooting)."
+    : defaultMessage;
 }
 
 function buildContext() {
@@ -96,7 +124,7 @@ export async function askFinance(args: { data: { messages: Msg[] } }): Promise<{
     if (r) return r;
   } catch (e) {
     console.error("[ask-finance]", e);
-    return { reply: FALLBACK_NOTE, error: true };
+    return { reply: fallbackNote(e, FALLBACK_NOTE), error: true };
   }
   return { reply: FALLBACK_NOTE, error: true };
 }

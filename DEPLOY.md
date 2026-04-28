@@ -83,3 +83,32 @@ If you'd rather not run PHP, the same five endpoints can be hosted on any
 JS-capable runtime (Cloudflare Worker, Vercel function, Hostinger VPS Node) as
 long as it exposes the same `/api/*` contract and keeps `AI_GATEWAY_API_KEY`
 server-side.
+
+## Troubleshooting: `/api/diagnostic`
+
+If the AI buttons return "AI Gateway is not available" or "Fallback mode", open
+[`/api/diagnostic`](https://nooks.andrewvrodriguez.com/api/diagnostic) in a
+browser. It's a read-only GET endpoint — no auth, no key value ever leaves the
+server. The JSON tells you four things:
+
+- `api_key_present` — whether `AI_GATEWAY_API_KEY` reached PHP at all.
+- `api_key_sources` — which of six lookup paths surfaced it. Hostinger's
+  LiteSpeed (`php_sapi: "litespeed"`) often ignores hPanel "PHP Variables", so
+  the sources array tells you which mechanism actually works on your install.
+- `gateway_reachable.ok` — whether outbound HTTPS to Vercel AI Gateway works
+  from PHP. If `false`, contact Hostinger.
+- `ground_truth.readable` — whether the bundled report shipped with the deploy.
+
+If `api_key_sources` is empty, try in this order until it's non-empty:
+
+1. **hPanel → Advanced → PHP Configuration → PHP Variables**: add
+   `AI_GATEWAY_API_KEY=vck_...`. Triggers the `getenv` source.
+2. **Edit `public_html/.htaccess`** and add `SetEnv AI_GATEWAY_API_KEY vck_...`
+   at the top. Triggers `_SERVER` or `redirect_SERVER`.
+3. **Place a `.env` file at `public_html/.env`** with
+   `AI_GATEWAY_API_KEY=vck_...`. Triggers the `env_file` source. Make sure the
+   file is readable by the web user.
+
+The same diagnostic works locally during `npm run dev` — visit
+`http://localhost:5173/api/diagnostic`. It returns `php_sapi: "vite-dev"` and
+reads the key from `.env` (`AI_GATEWAY_API_KEY=...`).

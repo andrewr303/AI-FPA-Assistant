@@ -17,7 +17,10 @@ header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$action = $_GET['action'] ?? '';
+$isDiagnostic = $action === 'diagnostic';
+if ($method !== 'POST' && !($method === 'GET' && $isDiagnostic)) {
     http_response_code(405); echo json_encode(['error' => 'method not allowed']); exit;
 }
 
@@ -43,24 +46,26 @@ function read_env_file_value(string $name): string {
     return '';
 }
 
-function read_config(string $name): string {
-    $candidates = [
-        getenv($name) ?: '',
-        $_ENV[$name] ?? '',
-        $_SERVER[$name] ?? '',
-        $_SERVER['REDIRECT_' . $name] ?? '',
-        function_exists('apache_getenv') ? (apache_getenv($name) ?: '') : '',
-        read_env_file_value($name),
+function read_config_sources(string $name): array {
+    return [
+        'getenv'          => is_string(getenv($name) ?: '') ? trim((string)(getenv($name) ?: '')) : '',
+        '_ENV'            => trim((string)($_ENV[$name] ?? '')),
+        '_SERVER'         => trim((string)($_SERVER[$name] ?? '')),
+        'redirect_SERVER' => trim((string)($_SERVER['REDIRECT_' . $name] ?? '')),
+        'apache_getenv'   => function_exists('apache_getenv') ? trim((string)(apache_getenv($name) ?: '')) : '',
+        'env_file'        => trim(read_env_file_value($name)),
     ];
-    foreach ($candidates as $value) {
-        $value = is_string($value) ? trim($value) : '';
+}
+
+function read_config(string $name): string {
+    foreach (read_config_sources($name) as $value) {
         if ($value !== '') return $value;
     }
     return '';
 }
 
 $apiKey = read_config('AI_GATEWAY_API_KEY');
-if (!$apiKey) {
+if (!$isDiagnostic && !$apiKey) {
     http_response_code(500);
     echo json_encode([
         'error' => 'AI_GATEWAY_API_KEY not configured on the server',
@@ -68,8 +73,9 @@ if (!$apiKey) {
     ]); exit;
 }
 
-$action = $_GET['action'] ?? '';
-$body   = json_decode(file_get_contents('php://input') ?: '{}', true) ?? [];
+$body   = $method === 'POST'
+    ? (json_decode(file_get_contents('php://input') ?: '{}', true) ?? [])
+    : [];
 
 const GATEWAY = 'https://ai-gateway.vercel.sh/v1/chat/completions';
 $configuredModel = read_config('AI_GATEWAY_MODEL') ?: 'google/gemini-3.1-pro-preview';
@@ -230,6 +236,62 @@ TXT;
 
 try {
     switch ($action) {
+
+        // ===== /api/diagnostic (GET) =====
+        // Read-only health probe. Reports presence (never values) of the API
+        // key across the 6 lookup sources so the operator can tell which
+        // Hostinger config mechanism (hPanel PHP variable, .htaccess SetEnv,
+        // .env file) actually surfaces env vars on this server.
+        case 'diagnostic': {
+            $sources = read_config_sources('AI_GATEWAY_API_KEY');
+            $found = [];
+            $sourceMap = [];
+            foreach ($sources as $name => $value) {
+                $present = $value !== '';
+                $sourceMap[$name] = $present;
+                if ($present) $found[] = $name;
+            }
+
+            $gtPaths = [
+                __DIR__ . '/ground-truth/nooks-ground-truth.md',
+                dirname(__DIR__) . '/ai-knowledge/ground-truth/nooks-ground-truth.md',
+            ];
+            $gtReadable = false;
+            $gtPathUsed = null;
+            foreach ($gtPaths as $p) {
+                if (is_readable($p)) { $gtReadable = true; $gtPathUsed = $p; break; }
+            }
+
+            $reach = ['ok' => false, 'http_code' => 0, 'error' => null];
+            $ch = curl_init('https://ai-gateway.vercel.sh/');
+            curl_setopt_array($ch, [
+                CURLOPT_NOBODY         => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 5,
+                CURLOPT_CONNECTTIMEOUT => 3,
+                CURLOPT_FOLLOWLOCATION => true,
+            ]);
+            curl_exec($ch);
+            $reach['http_code'] = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $err = curl_error($ch);
+            if ($reach['http_code'] > 0) $reach['ok'] = true;
+            if ($err) $reach['error'] = $err;
+            curl_close($ch);
+
+            echo json_encode([
+                'ok'                 => $apiKey !== '' && $gtReadable && $reach['ok'],
+                'api_key_present'    => $apiKey !== '',
+                'api_key_sources'    => $found,
+                'api_key_source_map' => $sourceMap,
+                'php_version'        => PHP_VERSION,
+                'php_sapi'           => PHP_SAPI,
+                'ground_truth'       => ['readable' => $gtReadable, 'path' => $gtPathUsed],
+                'gateway_reachable'  => $reach,
+                'configured_model'   => read_config('AI_GATEWAY_MODEL') ?: 'google/gemini-3.1-pro-preview',
+                'allowed_origin'     => getenv('ALLOWED_ORIGIN') ?: '*',
+            ]);
+            break;
+        }
 
         // ===== /api/copilot.php?action=ask-finance =====
         case 'ask-finance': {
