@@ -4,9 +4,10 @@
       "Bash(git rm *)",
       "Bash(bun run *)",
       "Bash(bunx tsc *)",
-      "Bash(grep -lc \"Cohort retention heatmap\" dist/assets/*.js)",
-      "Bash(grep -lc \"Intelligent Outbound\" dist/assets/*.js)",
-      "Bash(grep -lc \"Earn Customer Love\" dist/assets/*.js)"
+      "Bash(php -l php-api/copilot.php)",
+      "Bash(gh pr create --title 'Add /api/diagnostic endpoint + global missing-key banner' --body ' *)",
+      "Bash(gh pr *)",
+      "Bash(git pull *)"
     ]
   }
 }
