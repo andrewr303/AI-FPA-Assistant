@@ -187,7 +187,8 @@ export async function vendorRollout(
     scale: ["claude-sonnet-4.6"],
     pilot: ["gemini-3-flash"],
     deprecate: [],
-    rationale: "Fallback mode: rule-of-thumb suggestion. Live AI requires server-side AI_GATEWAY_API_KEY.",
+    rationale:
+      "Fallback mode: rule-of-thumb suggestion. Live AI requires server-side AI_GATEWAY_API_KEY.",
     concentration_warning: mix.find((m) => m.share > 60)
       ? `${mix.find((m) => m.share > 60)?.vendor} concentration above 60% threshold.`
       : null,

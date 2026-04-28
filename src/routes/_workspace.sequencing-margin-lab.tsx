@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { OperatingPrinciple } from "@/components/brand/operating-principle";
 import { useCopilot } from "@/components/workspace/copilot-context";
-import { models, computeCostPerAction } from "@/lib/mock/data";
+import { models, vendors, computeCostPerAction } from "@/lib/mock/data";
 import { formatUsd, formatPct, formatNumber } from "@/lib/format";
 import {
   Sparkles,
@@ -101,6 +101,15 @@ function Page() {
   const copilot = useCopilot();
   const [scenario, setScenario] = useState<Scenario>(PLAN);
   const [actionsPerSeat, setActionsPerSeat] = useState(ACTIONS_PER_SEAT);
+  const vendorDiscountPct = useMemo(() => {
+    const byVendor = Object.fromEntries(vendors.map((v) => [v.name, v.discount]));
+    return {
+      openai: Math.min(100, byVendor.openai + scenario.discountPct),
+      anthropic: Math.min(100, byVendor.anthropic + scenario.discountPct),
+      google: Math.min(100, byVendor.google + scenario.discountPct),
+      deepseek: Math.min(100, byVendor.deepseek + scenario.discountPct),
+    };
+  }, [scenario.discountPct]);
 
   const planCost = useMemo(
     () =>
@@ -111,8 +120,9 @@ function Page() {
         vendorMix: PLAN.vendorMix,
         discountPct: PLAN.discountPct,
         routingOverheadPct: PLAN.routingOverheadPct,
+        vendorDiscountPct,
       }),
-    [],
+    [vendorDiscountPct],
   );
   const cost = useMemo(
     () =>
@@ -123,8 +133,9 @@ function Page() {
         vendorMix: scenario.vendorMix,
         discountPct: scenario.discountPct,
         routingOverheadPct: scenario.routingOverheadPct,
+        vendorDiscountPct,
       }),
-    [scenario],
+    [scenario, vendorDiscountPct],
   );
 
   const costPerAction = cost.total;
@@ -157,6 +168,7 @@ function Page() {
         vendorMix: { [vendor]: 1 } as Record<string, number>,
         discountPct: scenario.discountPct,
         routingOverheadPct: scenario.routingOverheadPct,
+        vendorDiscountPct,
       });
       const contribution = single.total * share;
       return {
@@ -166,7 +178,7 @@ function Page() {
         contribution,
       };
     });
-  }, [scenario]);
+  }, [scenario, vendorDiscountPct]);
 
   // Cache-hit sensitivity curve
   const cacheCurve = useMemo(() => {
@@ -175,10 +187,11 @@ function Page() {
       const c = computeCostPerAction({
         ...scenario,
         cacheHitRate: hit,
+        vendorDiscountPct,
       });
       return { cache: `${(hit * 100).toFixed(0)}%`, cost: +c.total.toFixed(4) };
     });
-  }, [scenario]);
+  }, [scenario, vendorDiscountPct]);
 
   function updateVendor(key: keyof Scenario["vendorMix"], val: number) {
     const others = (Object.keys(scenario.vendorMix) as (keyof Scenario["vendorMix"])[]).filter(
@@ -379,11 +392,7 @@ function Page() {
                     data={vendorBreakdown}
                     margin={{ top: 8, right: 8, left: 8, bottom: 8 }}
                   >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="var(--border)"
-                      opacity={0.3}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
                     <XAxis
                       dataKey="vendor"
                       tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
@@ -451,11 +460,7 @@ function Page() {
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <LineChart data={cacheCurve} margin={{ top: 8, right: 20, left: 8, bottom: 8 }}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="var(--border)"
-                      opacity={0.3}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
                     <XAxis
                       dataKey="cache"
                       tick={{ fill: "var(--muted-foreground)", fontSize: 10 }}
@@ -484,7 +489,12 @@ function Page() {
                       stroke="var(--primary)"
                       strokeWidth={2}
                       dot={{ r: 3, fill: "var(--primary)", stroke: "var(--primary)" }}
-                      activeDot={{ r: 5, fill: "var(--primary)", stroke: "var(--background)", strokeWidth: 2 }}
+                      activeDot={{
+                        r: 5,
+                        fill: "var(--primary)",
+                        stroke: "var(--background)",
+                        strokeWidth: 2,
+                      }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -512,6 +522,9 @@ function Page() {
                 vendorMix: p.scenario.vendorMix,
                 discountPct: p.scenario.discountPct,
                 routingOverheadPct: p.scenario.routingOverheadPct,
+                vendorDiscountPct: Object.fromEntries(
+                  vendors.map((v) => [v.name, Math.min(100, v.discount + p.scenario.discountPct)]),
+                ),
               });
               const presetGm =
                 ((monthlyRevenue - SEATS * actionsPerSeat * c.total) / monthlyRevenue) * 100;

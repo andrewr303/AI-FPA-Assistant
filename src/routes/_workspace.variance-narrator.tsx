@@ -239,8 +239,8 @@ function Page() {
               </ul>
               {brief.error && (
                 <p className="text-[11px] text-warning mt-4">
-                  AI Gateway unavailable — configure server-side <code>AI_GATEWAY_API_KEY</code>{" "}
-                  for live AI commentary.
+                  AI Gateway unavailable — configure server-side <code>AI_GATEWAY_API_KEY</code> for
+                  live AI commentary.
                 </p>
               )}
             </Card>

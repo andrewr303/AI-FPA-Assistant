@@ -98,9 +98,7 @@ const ACTION_SECTIONS: Record<string, string[]> = {
 };
 
 function asObject(input: unknown): JsonObject {
-  return input && typeof input === "object" && !Array.isArray(input)
-    ? (input as JsonObject)
-    : {};
+  return input && typeof input === "object" && !Array.isArray(input) ? (input as JsonObject) : {};
 }
 
 function toMessages(input: unknown): GatewayMessage[] {
@@ -120,7 +118,10 @@ function toMessages(input: unknown): GatewayMessage[] {
 }
 
 function stripJsonFence(value: string): string {
-  return value.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+  return value
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/i, "")
+    .trim();
 }
 
 function loadGroundTruth(): string {

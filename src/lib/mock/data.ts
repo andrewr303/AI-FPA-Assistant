@@ -708,9 +708,26 @@ export function computeCostPerAction(opts: {
   vendorMix: Record<string, number>;
   discountPct: number;
   routingOverheadPct: number;
+  vendorDiscountPct?: Record<string, number>;
 }) {
+  const tokensIn = Math.max(0, opts.tokensIn);
+  const tokensOut = Math.max(0, opts.tokensOut);
+  const cacheHitRate = Math.min(1, Math.max(0, opts.cacheHitRate));
+  const routingOverheadPct = Math.max(0, opts.routingOverheadPct);
+  const baseDiscountPct = Math.min(100, Math.max(0, opts.discountPct));
+
+  const normalizedEntries = Object.entries(opts.vendorMix)
+    .map(([vendor, share]) => [vendor, Math.max(0, share)] as const)
+    .filter(([, share]) => share > 0);
+  const normalizedTotal = normalizedEntries.reduce((sum, [, share]) => sum + share, 0);
+  const mix =
+    normalizedTotal > 0
+      ? normalizedEntries.map(([vendor, share]) => [vendor, share / normalizedTotal] as const)
+      : [];
+
   let inference = 0;
-  for (const [vendor, share] of Object.entries(opts.vendorMix)) {
+  let afterDiscount = 0;
+  for (const [vendor, share] of mix) {
     // Pick the flagship mid-tier model per vendor for blended calc
     const m =
       models.find((x) => x.vendor === vendor && x.modelName.includes("sonnet")) ||
@@ -718,14 +735,19 @@ export function computeCostPerAction(opts: {
       models.find((x) => x.vendor === vendor && x.modelName.includes("flash")) ||
       models.find((x) => x.vendor === vendor);
     if (!m) continue;
-    const blendedIn =
-      opts.cacheHitRate * m.cachedInputPrice + (1 - opts.cacheHitRate) * m.inputPrice;
-    const inCost = (opts.tokensIn / 1_000_000) * blendedIn;
-    const outCost = (opts.tokensOut / 1_000_000) * m.outputPrice;
-    inference += (inCost + outCost) * share;
+    const blendedIn = cacheHitRate * m.cachedInputPrice + (1 - cacheHitRate) * m.inputPrice;
+    const inCost = (tokensIn / 1_000_000) * blendedIn;
+    const outCost = (tokensOut / 1_000_000) * m.outputPrice;
+    const vendorInference = (inCost + outCost) * share;
+    const vendorDiscountPct = Math.min(
+      100,
+      Math.max(0, opts.vendorDiscountPct?.[vendor] ?? baseDiscountPct),
+    );
+
+    inference += vendorInference;
+    afterDiscount += vendorInference * (1 - vendorDiscountPct / 100);
   }
-  const afterDiscount = inference * (1 - opts.discountPct / 100);
-  const total = afterDiscount * (1 + opts.routingOverheadPct / 100);
+  const total = afterDiscount * (1 + routingOverheadPct / 100);
   return {
     inference,
     discountSavings: inference - afterDiscount,
