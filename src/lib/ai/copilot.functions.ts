@@ -13,8 +13,12 @@ import {
 
 export type Msg = { role: "user" | "assistant" | "system"; content: string };
 
+const SUPABASE_COPILOT_API = import.meta.env.VITE_SUPABASE_URL
+  ? `${String(import.meta.env.VITE_SUPABASE_URL).replace(/\/$/, "")}/functions/v1/copilot`
+  : "";
+
 const COPILOT_API = (
-  (import.meta.env.VITE_COPILOT_API_URL as string | undefined) || "/api"
+  (import.meta.env.VITE_COPILOT_API_URL as string | undefined) || SUPABASE_COPILOT_API || "/api"
 ).replace(/\/$/, "");
 
 const PRETTY_API_ROUTE_PATTERN = /^\/[a-z-]+$/;
