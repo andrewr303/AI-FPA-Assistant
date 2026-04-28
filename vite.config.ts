@@ -67,6 +67,7 @@ function copilotDevApi(): Plugin {
 }
 
 export default defineConfig({
+  base: "./",
   plugins: [
     copilotDevApi(),
     TanStackRouterVite({
