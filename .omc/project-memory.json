@@ -123,14 +123,14 @@
     },
     {
       "path": "src\\routes\\_workspace.index.tsx",
-      "accessCount": 10,
-      "lastAccessed": 1777332745656,
+      "accessCount": 11,
+      "lastAccessed": 1777347006055,
       "type": "file"
     },
     {
       "path": "src\\components\\workspace\\copilot-drawer.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1777332767276,
+      "accessCount": 6,
+      "lastAccessed": 1777348156232,
       "type": "file"
     },
     {
@@ -158,28 +158,34 @@
       "type": "file"
     },
     {
-      "path": "src",
-      "accessCount": 3,
-      "lastAccessed": 1777326269699,
-      "type": "directory"
+      "path": "package.json",
+      "accessCount": 4,
+      "lastAccessed": 1777347007214,
+      "type": "file"
     },
     {
-      "path": "src\\lib\\mock\\data.ts",
-      "accessCount": 3,
-      "lastAccessed": 1777330333536,
+      "path": "src\\components\\workspace\\sidebar-nav.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1777347038304,
       "type": "file"
     },
     {
       "path": "DEPLOY.md",
-      "accessCount": 3,
-      "lastAccessed": 1777330647213,
+      "accessCount": 4,
+      "lastAccessed": 1777348128073,
       "type": "file"
     },
     {
-      "path": "package.json",
-      "accessCount": 3,
-      "lastAccessed": 1777332576999,
+      "path": "src\\lib\\mock\\data.ts",
+      "accessCount": 4,
+      "lastAccessed": 1777348161263,
       "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 3,
+      "lastAccessed": 1777326269699,
+      "type": "directory"
     },
     {
       "path": "src\\routes\\_workspace.utilization-simulator.tsx",
@@ -200,21 +206,15 @@
       "type": "file"
     },
     {
-      "path": "src\\components\\workspace\\sidebar-nav.tsx",
+      "path": "vite.config.ts",
       "accessCount": 3,
-      "lastAccessed": 1777332765466,
+      "lastAccessed": 1777347013004,
       "type": "file"
     },
     {
       "path": "src\\routes\\__root.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1777326221027,
-      "type": "file"
-    },
-    {
-      "path": "vite.config.ts",
-      "accessCount": 2,
-      "lastAccessed": 1777326255226,
+      "accessCount": 3,
+      "lastAccessed": 1777347018246,
       "type": "file"
     },
     {
@@ -242,10 +242,52 @@
       "type": "file"
     },
     {
+      "path": "src\\routes\\_workspace.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777347012232,
+      "type": "file"
+    },
+    {
+      "path": "src\\styles.css",
+      "accessCount": 2,
+      "lastAccessed": 1777347012643,
+      "type": "file"
+    },
+    {
+      "path": "src\\main.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777347018841,
+      "type": "file"
+    },
+    {
+      "path": "index.html",
+      "accessCount": 2,
+      "lastAccessed": 1777347019083,
+      "type": "file"
+    },
+    {
       "path": "",
-      "accessCount": 1,
-      "lastAccessed": 1777326084520,
+      "accessCount": 2,
+      "lastAccessed": 1777347076214,
       "type": "directory"
+    },
+    {
+      "path": "src\\routes\\_workspace.treasury.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1777347086602,
+      "type": "file"
+    },
+    {
+      "path": "public\\.htaccess",
+      "accessCount": 2,
+      "lastAccessed": 1777347097843,
+      "type": "file"
+    },
+    {
+      "path": "php-api\\copilot.php",
+      "accessCount": 2,
+      "lastAccessed": 1777347098786,
+      "type": "file"
     },
     {
       "path": "wrangler.jsonc",
@@ -266,39 +308,9 @@
       "type": "file"
     },
     {
-      "path": "index.html",
-      "accessCount": 1,
-      "lastAccessed": 1777326215113,
-      "type": "file"
-    },
-    {
-      "path": "src\\main.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1777326217423,
-      "type": "file"
-    },
-    {
-      "path": "public\\.htaccess",
-      "accessCount": 1,
-      "lastAccessed": 1777326260711,
-      "type": "file"
-    },
-    {
-      "path": "src\\routes\\_workspace.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1777326268829,
-      "type": "file"
-    },
-    {
       "path": ".env.example",
       "accessCount": 1,
       "lastAccessed": 1777326292854,
-      "type": "file"
-    },
-    {
-      "path": "src\\routes\\_workspace.treasury.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1777326768450,
       "type": "file"
     },
     {
@@ -320,12 +332,6 @@
       "type": "file"
     },
     {
-      "path": "php-api\\copilot.php",
-      "accessCount": 1,
-      "lastAccessed": 1777330284487,
-      "type": "file"
-    },
-    {
       "path": "php-api\\.htaccess",
       "accessCount": 1,
       "lastAccessed": 1777330287644,
@@ -338,9 +344,15 @@
       "type": "file"
     },
     {
-      "path": "src\\styles.css",
+      "path": "src\\components\\brand\\operating-principle.tsx",
       "accessCount": 1,
-      "lastAccessed": 1777332504272,
+      "lastAccessed": 1777347048601,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\workspace\\copilot-context.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1777348155751,
       "type": "file"
     }
   ],
