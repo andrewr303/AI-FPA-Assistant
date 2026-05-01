@@ -1,10 +1,11 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 export const AI_GATEWAY_MODEL = "google/gemini-3-flash";
 
 const AI_GATEWAY_CHAT_URL = "https://ai-gateway.vercel.sh/v1/chat/completions";
-const GROUND_TRUTH_PATH = path.resolve(
+const GROUND_TRUTH_DIR = path.resolve(process.cwd(), "ground-truths");
+const DEFAULT_GROUND_TRUTH_PATH = path.resolve(
   process.cwd(),
   "ai-knowledge/ground-truth/nooks-ground-truth.md",
 );
@@ -119,11 +120,27 @@ function stripJsonFence(value: string): string {
 
 function loadGroundTruth(): string {
   if (groundTruthCache !== null) return groundTruthCache;
+
+  const docs: string[] = [];
   try {
-    groundTruthCache = readFileSync(GROUND_TRUTH_PATH, "utf8");
+    const files = readdirSync(GROUND_TRUTH_DIR).filter((name) => name.toLowerCase().endsWith(".md"));
+    for (const file of files) {
+      const fullPath = path.join(GROUND_TRUTH_DIR, file);
+      docs.push(`## Source: ${file}\n${readFileSync(fullPath, "utf8")}`);
+    }
   } catch {
-    groundTruthCache = "";
+    // directory may not exist yet
   }
+
+  if (docs.length === 0) {
+    try {
+      docs.push(readFileSync(DEFAULT_GROUND_TRUTH_PATH, "utf8"));
+    } catch {
+      // no fallback file found
+    }
+  }
+
+  groundTruthCache = docs.join("\n\n");
   return groundTruthCache;
 }
 
@@ -141,7 +158,7 @@ function extractSection(doc: string, heading: string): string {
 function buildGroundTruthContext(action: string): string {
   const doc = loadGroundTruth();
   if (!doc) {
-    return `${GROUND_TRUTH_RULES}\n\nGround-truth report status: unavailable at ${GROUND_TRUTH_PATH}.`;
+    return `${GROUND_TRUTH_RULES}\n\nGround-truth report status: unavailable at ${GROUND_TRUTH_DIR}.`;
   }
 
   const sections = ACTION_SECTIONS[action] ?? ACTION_SECTIONS["ask-finance"];
@@ -154,7 +171,7 @@ function buildGroundTruthContext(action: string): string {
   return [
     GROUND_TRUTH_RULES,
     "",
-    `Ground-truth report: ai-knowledge/ground-truth/nooks-ground-truth.md`,
+    `Ground-truth corpus: ground-truths/*.md (fallback: ai-knowledge/ground-truth/nooks-ground-truth.md)`,
     "",
     excerpt || doc.slice(0, 18000),
   ].join("\n");
@@ -248,9 +265,9 @@ export async function handleCopilotAction(
       let groundTruthReadable = false;
       let groundTruthPath: string | null = null;
       try {
-        readFileSync(GROUND_TRUTH_PATH, "utf8");
+        loadGroundTruth();
         groundTruthReadable = true;
-        groundTruthPath = GROUND_TRUTH_PATH;
+        groundTruthPath = GROUND_TRUTH_DIR;
       } catch {
         groundTruthReadable = false;
       }
