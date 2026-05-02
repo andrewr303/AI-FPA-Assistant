@@ -22,6 +22,23 @@ const SUGGESTIONS = [
   "Why did LLM COGS miss plan?",
 ];
 
+function buildFollowUps(question: string, answer: string): string[] {
+  const base = [
+    `What assumptions drove this conclusion on: ${question.slice(0, 48)}?`,
+    "What is the highest-impact action in the next 30 days?",
+    "What could make this recommendation fail, and how do we mitigate it?",
+  ];
+
+  if (/arr|revenue|nrr/i.test(answer)) {
+    base[1] = "Which revenue lever should we run first, and what KPI proves it worked?";
+  }
+  if (/margin|cogs|cost/i.test(answer)) {
+    base[2] = "Which cost lever has the fastest payback with lowest customer risk?";
+  }
+
+  return base;
+}
+
 export function CopilotDrawer({
   open,
   onOpenChange,
@@ -34,6 +51,7 @@ export function CopilotDrawer({
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Msg[]>([]);
   const [busy, setBusy] = useState(false);
+  const [followUps, setFollowUps] = useState<string[]>(SUGGESTIONS.slice(0, 3));
   const scrollRef = useRef<HTMLDivElement>(null);
   const ask = askFinance;
 
@@ -58,6 +76,7 @@ export function CopilotDrawer({
     try {
       const res = await ask({ data: { messages: next } });
       setMessages([...next, { role: "assistant", content: res.reply }]);
+      setFollowUps(buildFollowUps(q, res.reply));
     } catch {
       setMessages([
         ...next,
@@ -93,24 +112,22 @@ export function CopilotDrawer({
         </SheetHeader>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-thin px-5 py-4 space-y-4">
-          {messages.length === 0 && (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                The agent is still listening. Insights drop when the call ends. Try one of these:
-              </p>
-              <div className="space-y-1.5">
-                {SUGGESTIONS.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => send(s)}
-                    className="block w-full text-left text-xs rounded-md border border-border bg-background/50 p-2.5 hover:border-primary/40 hover:bg-accent/40 transition-colors"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Suggested questions {messages.length === 0 ? "to start" : "to continue"}:
+            </p>
+            <div className="space-y-1.5">
+              {(messages.length === 0 ? SUGGESTIONS : followUps).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => send(s)}
+                  className="block w-full text-left text-xs rounded-md border border-border bg-background/50 p-2.5 hover:border-primary/40 hover:bg-accent/40 transition-colors"
+                >
+                  {s}
+                </button>
+              ))}
             </div>
-          )}
+          </div>
           {messages.map((m, i) => (
             <div
               key={i}
