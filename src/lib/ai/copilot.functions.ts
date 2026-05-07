@@ -45,11 +45,14 @@ export function isMissingKeyError(e: unknown): boolean {
   return (e as { code?: string } | null)?.code === COPILOT_MISSING_KEY;
 }
 
+const COPILOT_TIMEOUT_MS = 20_000;
+
 async function call<T>(path: string, body: unknown): Promise<T | null> {
   const init: RequestInit = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(COPILOT_TIMEOUT_MS),
   };
   let res = await fetch(`${COPILOT_API}${path}`, init);
   const contentType = res.headers.get("content-type") ?? "";
