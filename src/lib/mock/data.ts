@@ -399,6 +399,15 @@ export const customers = [
     seats: 24,
     signup: "2026-02-20",
   },
+  {
+    name: "Linear",
+    emoji: "🟪",
+    segment: "smb" as const,
+    region: "NAMER",
+    industry: "DevTools",
+    seats: 26,
+    signup: "2026-03-15",
+  },
 ];
 
 // ===== KPI snapshots (12 months) =====
@@ -617,6 +626,215 @@ export const varianceRecords = [
     notes: "Seattle eng push hired ahead of plan",
   },
 ];
+
+export type CustomerProfitabilityInput = {
+  customerName: string;
+  customerSuccessCostMonthly: number;
+  infrastructureAllocationMonthly: number;
+  profitabilityOverridePct: number;
+};
+
+export type CustomerUsageHistory = {
+  customerName: string;
+  product: ProductCode;
+  month: string;
+  actions: number;
+};
+
+export const customerProfitabilityInputs: CustomerProfitabilityInput[] = customers.map((c, i) => ({
+  customerName: c.name,
+  customerSuccessCostMonthly: Math.round(1800 + c.seats * 48 + (i % 5) * 350),
+  infrastructureAllocationMonthly: Math.round(2200 + c.seats * 38 + (i % 7) * 420),
+  profitabilityOverridePct: ["HubSpot", "Deel", "Toast"].includes(c.name)
+    ? -8.5
+    : i % 6 === 0
+      ? -2.5
+      : 0,
+}));
+
+const usageMonths = ["2025-11", "2025-12", "2026-01", "2026-02", "2026-03", "2026-04"];
+export const customerUsageHistory: CustomerUsageHistory[] = customers.flatMap((c, cix) =>
+  usageMonths.flatMap((month, mix) =>
+    products.map((p, pix) => ({
+      customerName: c.name,
+      product: p.code,
+      month,
+      actions: Math.round(
+        c.seats * (38 + pix * 17 + mix * 3) * (1 + ((cix + pix + mix) % 4) * 0.06),
+      ),
+    })),
+  ),
+);
+
+export type FinOpsWorkflow = {
+  workflowId: string;
+  name: string;
+  owner: string;
+  baselineModel: string;
+};
+
+export type FinOpsModelCandidate = {
+  workflowId: string;
+  vendor: string;
+  modelName: string;
+  qualityScore: number;
+  p95LatencyMs: number;
+  currentRoutingSharePct: number;
+  candidateRoutingSharePct: number;
+};
+
+export const finOpsWorkflows: FinOpsWorkflow[] = [
+  {
+    workflowId: "wf_reply_assist",
+    name: "Reply Assist",
+    owner: "RevOps AI",
+    baselineModel: "gpt-5",
+  },
+  {
+    workflowId: "wf_sequence_writer",
+    name: "Sequence Writer",
+    owner: "Growth AI",
+    baselineModel: "claude-sonnet-4.6",
+  },
+  {
+    workflowId: "wf_call_summary",
+    name: "Call Summary",
+    owner: "Core Product",
+    baselineModel: "gpt-4.1",
+  },
+  {
+    workflowId: "wf_objection_coach",
+    name: "Objection Coach",
+    owner: "Enablement",
+    baselineModel: "claude-opus-4.7",
+  },
+  {
+    workflowId: "wf_lead_scoring",
+    name: "Lead Scoring",
+    owner: "Data Platform",
+    baselineModel: "gemini-3-pro",
+  },
+  {
+    workflowId: "wf_signal_enrichment",
+    name: "Signal Enrichment",
+    owner: "Data Platform",
+    baselineModel: "gpt-5-mini",
+  },
+  {
+    workflowId: "wf_playbook_qa",
+    name: "Playbook Q&A",
+    owner: "Support AI",
+    baselineModel: "claude-haiku-4.5",
+  },
+];
+
+const candidateModelNames = [
+  "gpt-5",
+  "gpt-5-mini",
+  "gpt-5-nano",
+  "gpt-4.1",
+  "claude-opus-4.7",
+  "claude-sonnet-4.6",
+  "gemini-3-pro",
+  "deepseek-v3.2",
+];
+
+export const finOpsModelCandidates: FinOpsModelCandidate[] = finOpsWorkflows.flatMap((wf, wix) =>
+  candidateModelNames.map((name, ix) => {
+    const model = models.find((m) => m.modelName === name)!;
+    return {
+      workflowId: wf.workflowId,
+      vendor: model.vendor,
+      modelName: model.modelName,
+      qualityScore: +(model.quality - (ix % 3) * 1.1 + (wix % 2) * 0.6).toFixed(1),
+      p95LatencyMs: 720 + ix * 120 + wix * 35,
+      currentRoutingSharePct: ix === 0 ? 55 : ix === 1 ? 25 : ix === 2 ? 12 : ix === 3 ? 8 : 0,
+      candidateRoutingSharePct:
+        ix === 0
+          ? 32
+          : ix === 1
+            ? 30
+            : ix === 2
+              ? 15
+              : ix === 3
+                ? 8
+                : ix === 5
+                  ? 10
+                  : ix === 6
+                    ? 5
+                    : 0,
+    };
+  }),
+);
+
+export const finOpsRecommendations = [
+  {
+    workflowId: "wf_reply_assist",
+    recommendation: "Shift 23% routing from gpt-5 to gpt-5-mini for low-complexity prompts.",
+    estimatedMonthlySavings: 86_000,
+  },
+  {
+    workflowId: "wf_objection_coach",
+    recommendation: "Route first-pass drafts to claude-sonnet-4.6 and escalate only 18% to opus.",
+    estimatedMonthlySavings: 74_500,
+  },
+  {
+    workflowId: "wf_signal_enrichment",
+    recommendation: "Move background enrichment batch jobs to deepseek-v3.2 overnight queues.",
+    estimatedMonthlySavings: 41_300,
+  },
+];
+
+export type RenewalHealthSignal = {
+  customerName: string;
+  month: string;
+  usageCoveragePct: number;
+  execSponsorScore: number;
+  supportBurdenScore: number;
+  paymentTimelinessScore: number;
+};
+
+export type RenewalPrediction = {
+  customerName: string;
+  renewalMonth: string;
+  riskScore: number;
+  riskBand: "healthy" | "watch" | "high" | "critical";
+  predictedRenewalPct: number;
+};
+
+export const renewalHealthSignals: RenewalHealthSignal[] = customers.flatMap((c, idx) =>
+  usageMonths.map((month, mix) => ({
+    customerName: c.name,
+    month,
+    usageCoveragePct: Math.max(42, Math.min(98, 78 + (idx % 5) * 4 - mix * 2)),
+    execSponsorScore: Math.max(35, Math.min(96, 74 + (idx % 7) * 3 - mix)),
+    supportBurdenScore: Math.max(22, Math.min(95, 36 + (idx % 6) * 7 + mix * 2)),
+    paymentTimelinessScore: Math.max(40, Math.min(99, 88 - (idx % 4) * 6 - mix)),
+  })),
+);
+
+const forcedRiskBands: Record<string, RenewalPrediction["riskBand"]> = {
+  HubSpot: "watch",
+  Deel: "high",
+  Toast: "high",
+  Vanta: "watch",
+  Relay: "watch",
+  Linear: "critical",
+};
+
+export const renewalPredictions: RenewalPrediction[] = customers.map((c, idx) => {
+  const riskBand = forcedRiskBands[c.name] ?? (idx % 9 === 0 ? "watch" : "healthy");
+  const riskScore =
+    riskBand === "critical" ? 92 : riskBand === "high" ? 76 : riskBand === "watch" ? 58 : 24;
+  return {
+    customerName: c.name,
+    renewalMonth: "2026-07",
+    riskScore,
+    riskBand,
+    predictedRenewalPct:
+      riskBand === "critical" ? 42 : riskBand === "high" ? 63 : riskBand === "watch" ? 79 : 93,
+  };
+});
 
 // ARR waterfall for Q1 2026
 export const arrWaterfall = [
