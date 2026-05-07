@@ -16,9 +16,20 @@ import {
 
 export type Msg = { role: "user" | "assistant" | "system"; content: string };
 
-const SUPABASE_COPILOT_API = import.meta.env.VITE_SUPABASE_URL
-  ? `${String(import.meta.env.VITE_SUPABASE_URL).replace(/\/$/, "")}/functions/v1/copilot`
+const SUPABASE_URL =
+  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
+  (import.meta.env.VITE_SUPABASE_PROJECT_ID
+    ? `https://${String(import.meta.env.VITE_SUPABASE_PROJECT_ID)}.supabase.co`
+    : "");
+
+const SUPABASE_COPILOT_API = SUPABASE_URL
+  ? `${String(SUPABASE_URL).replace(/\/$/, "")}/functions/v1/copilot`
   : "";
+
+const SUPABASE_ANON_OR_PUBLISHABLE_KEY =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
+  (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined) ||
+  "";
 
 const COPILOT_API = (
   (import.meta.env.VITE_COPILOT_API_URL as string | undefined) || SUPABASE_COPILOT_API || "/api"
@@ -48,9 +59,14 @@ export function isMissingKeyError(e: unknown): boolean {
 const COPILOT_TIMEOUT_MS = 20_000;
 
 async function call<T>(path: string, body: unknown): Promise<T | null> {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (COPILOT_API === SUPABASE_COPILOT_API && SUPABASE_ANON_OR_PUBLISHABLE_KEY) {
+    headers.apikey = SUPABASE_ANON_OR_PUBLISHABLE_KEY;
+    headers.Authorization = `Bearer ${SUPABASE_ANON_OR_PUBLISHABLE_KEY}`;
+  }
   const init: RequestInit = {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(COPILOT_TIMEOUT_MS),
   };
