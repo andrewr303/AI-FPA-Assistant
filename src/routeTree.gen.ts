@@ -11,17 +11,21 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkspaceRouteImport } from './routes/_workspace'
 import { Route as WorkspaceIndexRouteImport } from './routes/_workspace.index'
+import { Route as WorkspaceYearOneRoadmapRouteImport } from './routes/_workspace.year-one-roadmap'
 import { Route as WorkspaceVendorPortfolioRouteImport } from './routes/_workspace.vendor-portfolio'
 import { Route as WorkspaceVarianceNarratorRouteImport } from './routes/_workspace.variance-narrator'
 import { Route as WorkspaceUtilizationSimulatorRouteImport } from './routes/_workspace.utilization-simulator'
 import { Route as WorkspaceTreasuryRouteImport } from './routes/_workspace.treasury'
 import { Route as WorkspaceSignalDeskRouteImport } from './routes/_workspace.signal-desk'
 import { Route as WorkspaceSequencingMarginLabRouteImport } from './routes/_workspace.sequencing-margin-lab'
+import { Route as WorkspaceRenewalRiskRouteImport } from './routes/_workspace.renewal-risk'
 import { Route as WorkspacePricingPlaysRouteImport } from './routes/_workspace.pricing-plays'
 import { Route as WorkspaceHeadcountPlaysRouteImport } from './routes/_workspace.headcount-plays'
 import { Route as WorkspaceForecastConfidenceRouteImport } from './routes/_workspace.forecast-confidence'
+import { Route as WorkspaceCustomerProfitabilityRouteImport } from './routes/_workspace.customer-profitability'
 import { Route as WorkspaceCopilotRouteImport } from './routes/_workspace.copilot'
 import { Route as WorkspaceArrWaterfallRouteImport } from './routes/_workspace.arr-waterfall'
+import { Route as WorkspaceAiFinopsOptimizerRouteImport } from './routes/_workspace.ai-finops-optimizer'
 
 const WorkspaceRoute = WorkspaceRouteImport.update({
   id: '/_workspace',
@@ -30,6 +34,11 @@ const WorkspaceRoute = WorkspaceRouteImport.update({
 const WorkspaceIndexRoute = WorkspaceIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
+const WorkspaceYearOneRoadmapRoute = WorkspaceYearOneRoadmapRouteImport.update({
+  id: '/year-one-roadmap',
+  path: '/year-one-roadmap',
   getParentRoute: () => WorkspaceRoute,
 } as any)
 const WorkspaceVendorPortfolioRoute =
@@ -66,6 +75,11 @@ const WorkspaceSequencingMarginLabRoute =
     path: '/sequencing-margin-lab',
     getParentRoute: () => WorkspaceRoute,
   } as any)
+const WorkspaceRenewalRiskRoute = WorkspaceRenewalRiskRouteImport.update({
+  id: '/renewal-risk',
+  path: '/renewal-risk',
+  getParentRoute: () => WorkspaceRoute,
+} as any)
 const WorkspacePricingPlaysRoute = WorkspacePricingPlaysRouteImport.update({
   id: '/pricing-plays',
   path: '/pricing-plays',
@@ -82,6 +96,12 @@ const WorkspaceForecastConfidenceRoute =
     path: '/forecast-confidence',
     getParentRoute: () => WorkspaceRoute,
   } as any)
+const WorkspaceCustomerProfitabilityRoute =
+  WorkspaceCustomerProfitabilityRouteImport.update({
+    id: '/customer-profitability',
+    path: '/customer-profitability',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
 const WorkspaceCopilotRoute = WorkspaceCopilotRouteImport.update({
   id: '/copilot',
   path: '/copilot',
@@ -92,94 +112,124 @@ const WorkspaceArrWaterfallRoute = WorkspaceArrWaterfallRouteImport.update({
   path: '/arr-waterfall',
   getParentRoute: () => WorkspaceRoute,
 } as any)
+const WorkspaceAiFinopsOptimizerRoute =
+  WorkspaceAiFinopsOptimizerRouteImport.update({
+    id: '/ai-finops-optimizer',
+    path: '/ai-finops-optimizer',
+    getParentRoute: () => WorkspaceRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof WorkspaceIndexRoute
+  '/ai-finops-optimizer': typeof WorkspaceAiFinopsOptimizerRoute
   '/arr-waterfall': typeof WorkspaceArrWaterfallRoute
   '/copilot': typeof WorkspaceCopilotRoute
+  '/customer-profitability': typeof WorkspaceCustomerProfitabilityRoute
   '/forecast-confidence': typeof WorkspaceForecastConfidenceRoute
   '/headcount-plays': typeof WorkspaceHeadcountPlaysRoute
   '/pricing-plays': typeof WorkspacePricingPlaysRoute
+  '/renewal-risk': typeof WorkspaceRenewalRiskRoute
   '/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
   '/signal-desk': typeof WorkspaceSignalDeskRoute
   '/treasury': typeof WorkspaceTreasuryRoute
   '/utilization-simulator': typeof WorkspaceUtilizationSimulatorRoute
   '/variance-narrator': typeof WorkspaceVarianceNarratorRoute
   '/vendor-portfolio': typeof WorkspaceVendorPortfolioRoute
+  '/year-one-roadmap': typeof WorkspaceYearOneRoadmapRoute
 }
 export interface FileRoutesByTo {
+  '/ai-finops-optimizer': typeof WorkspaceAiFinopsOptimizerRoute
   '/arr-waterfall': typeof WorkspaceArrWaterfallRoute
   '/copilot': typeof WorkspaceCopilotRoute
+  '/customer-profitability': typeof WorkspaceCustomerProfitabilityRoute
   '/forecast-confidence': typeof WorkspaceForecastConfidenceRoute
   '/headcount-plays': typeof WorkspaceHeadcountPlaysRoute
   '/pricing-plays': typeof WorkspacePricingPlaysRoute
+  '/renewal-risk': typeof WorkspaceRenewalRiskRoute
   '/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
   '/signal-desk': typeof WorkspaceSignalDeskRoute
   '/treasury': typeof WorkspaceTreasuryRoute
   '/utilization-simulator': typeof WorkspaceUtilizationSimulatorRoute
   '/variance-narrator': typeof WorkspaceVarianceNarratorRoute
   '/vendor-portfolio': typeof WorkspaceVendorPortfolioRoute
+  '/year-one-roadmap': typeof WorkspaceYearOneRoadmapRoute
   '/': typeof WorkspaceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_workspace': typeof WorkspaceRouteWithChildren
+  '/_workspace/ai-finops-optimizer': typeof WorkspaceAiFinopsOptimizerRoute
   '/_workspace/arr-waterfall': typeof WorkspaceArrWaterfallRoute
   '/_workspace/copilot': typeof WorkspaceCopilotRoute
+  '/_workspace/customer-profitability': typeof WorkspaceCustomerProfitabilityRoute
   '/_workspace/forecast-confidence': typeof WorkspaceForecastConfidenceRoute
   '/_workspace/headcount-plays': typeof WorkspaceHeadcountPlaysRoute
   '/_workspace/pricing-plays': typeof WorkspacePricingPlaysRoute
+  '/_workspace/renewal-risk': typeof WorkspaceRenewalRiskRoute
   '/_workspace/sequencing-margin-lab': typeof WorkspaceSequencingMarginLabRoute
   '/_workspace/signal-desk': typeof WorkspaceSignalDeskRoute
   '/_workspace/treasury': typeof WorkspaceTreasuryRoute
   '/_workspace/utilization-simulator': typeof WorkspaceUtilizationSimulatorRoute
   '/_workspace/variance-narrator': typeof WorkspaceVarianceNarratorRoute
   '/_workspace/vendor-portfolio': typeof WorkspaceVendorPortfolioRoute
+  '/_workspace/year-one-roadmap': typeof WorkspaceYearOneRoadmapRoute
   '/_workspace/': typeof WorkspaceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-finops-optimizer'
     | '/arr-waterfall'
     | '/copilot'
+    | '/customer-profitability'
     | '/forecast-confidence'
     | '/headcount-plays'
     | '/pricing-plays'
+    | '/renewal-risk'
     | '/sequencing-margin-lab'
     | '/signal-desk'
     | '/treasury'
     | '/utilization-simulator'
     | '/variance-narrator'
     | '/vendor-portfolio'
+    | '/year-one-roadmap'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/ai-finops-optimizer'
     | '/arr-waterfall'
     | '/copilot'
+    | '/customer-profitability'
     | '/forecast-confidence'
     | '/headcount-plays'
     | '/pricing-plays'
+    | '/renewal-risk'
     | '/sequencing-margin-lab'
     | '/signal-desk'
     | '/treasury'
     | '/utilization-simulator'
     | '/variance-narrator'
     | '/vendor-portfolio'
+    | '/year-one-roadmap'
     | '/'
   id:
     | '__root__'
     | '/_workspace'
+    | '/_workspace/ai-finops-optimizer'
     | '/_workspace/arr-waterfall'
     | '/_workspace/copilot'
+    | '/_workspace/customer-profitability'
     | '/_workspace/forecast-confidence'
     | '/_workspace/headcount-plays'
     | '/_workspace/pricing-plays'
+    | '/_workspace/renewal-risk'
     | '/_workspace/sequencing-margin-lab'
     | '/_workspace/signal-desk'
     | '/_workspace/treasury'
     | '/_workspace/utilization-simulator'
     | '/_workspace/variance-narrator'
     | '/_workspace/vendor-portfolio'
+    | '/_workspace/year-one-roadmap'
     | '/_workspace/'
   fileRoutesById: FileRoutesById
 }
@@ -201,6 +251,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof WorkspaceIndexRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
+    '/_workspace/year-one-roadmap': {
+      id: '/_workspace/year-one-roadmap'
+      path: '/year-one-roadmap'
+      fullPath: '/year-one-roadmap'
+      preLoaderRoute: typeof WorkspaceYearOneRoadmapRouteImport
       parentRoute: typeof WorkspaceRoute
     }
     '/_workspace/vendor-portfolio': {
@@ -245,6 +302,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceSequencingMarginLabRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/renewal-risk': {
+      id: '/_workspace/renewal-risk'
+      path: '/renewal-risk'
+      fullPath: '/renewal-risk'
+      preLoaderRoute: typeof WorkspaceRenewalRiskRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
     '/_workspace/pricing-plays': {
       id: '/_workspace/pricing-plays'
       path: '/pricing-plays'
@@ -266,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceForecastConfidenceRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/customer-profitability': {
+      id: '/_workspace/customer-profitability'
+      path: '/customer-profitability'
+      fullPath: '/customer-profitability'
+      preLoaderRoute: typeof WorkspaceCustomerProfitabilityRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
     '/_workspace/copilot': {
       id: '/_workspace/copilot'
       path: '/copilot'
@@ -280,36 +351,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceArrWaterfallRouteImport
       parentRoute: typeof WorkspaceRoute
     }
+    '/_workspace/ai-finops-optimizer': {
+      id: '/_workspace/ai-finops-optimizer'
+      path: '/ai-finops-optimizer'
+      fullPath: '/ai-finops-optimizer'
+      preLoaderRoute: typeof WorkspaceAiFinopsOptimizerRouteImport
+      parentRoute: typeof WorkspaceRoute
+    }
   }
 }
 
 interface WorkspaceRouteChildren {
+  WorkspaceAiFinopsOptimizerRoute: typeof WorkspaceAiFinopsOptimizerRoute
   WorkspaceArrWaterfallRoute: typeof WorkspaceArrWaterfallRoute
   WorkspaceCopilotRoute: typeof WorkspaceCopilotRoute
+  WorkspaceCustomerProfitabilityRoute: typeof WorkspaceCustomerProfitabilityRoute
   WorkspaceForecastConfidenceRoute: typeof WorkspaceForecastConfidenceRoute
   WorkspaceHeadcountPlaysRoute: typeof WorkspaceHeadcountPlaysRoute
   WorkspacePricingPlaysRoute: typeof WorkspacePricingPlaysRoute
+  WorkspaceRenewalRiskRoute: typeof WorkspaceRenewalRiskRoute
   WorkspaceSequencingMarginLabRoute: typeof WorkspaceSequencingMarginLabRoute
   WorkspaceSignalDeskRoute: typeof WorkspaceSignalDeskRoute
   WorkspaceTreasuryRoute: typeof WorkspaceTreasuryRoute
   WorkspaceUtilizationSimulatorRoute: typeof WorkspaceUtilizationSimulatorRoute
   WorkspaceVarianceNarratorRoute: typeof WorkspaceVarianceNarratorRoute
   WorkspaceVendorPortfolioRoute: typeof WorkspaceVendorPortfolioRoute
+  WorkspaceYearOneRoadmapRoute: typeof WorkspaceYearOneRoadmapRoute
   WorkspaceIndexRoute: typeof WorkspaceIndexRoute
 }
 
 const WorkspaceRouteChildren: WorkspaceRouteChildren = {
+  WorkspaceAiFinopsOptimizerRoute: WorkspaceAiFinopsOptimizerRoute,
   WorkspaceArrWaterfallRoute: WorkspaceArrWaterfallRoute,
   WorkspaceCopilotRoute: WorkspaceCopilotRoute,
+  WorkspaceCustomerProfitabilityRoute: WorkspaceCustomerProfitabilityRoute,
   WorkspaceForecastConfidenceRoute: WorkspaceForecastConfidenceRoute,
   WorkspaceHeadcountPlaysRoute: WorkspaceHeadcountPlaysRoute,
   WorkspacePricingPlaysRoute: WorkspacePricingPlaysRoute,
+  WorkspaceRenewalRiskRoute: WorkspaceRenewalRiskRoute,
   WorkspaceSequencingMarginLabRoute: WorkspaceSequencingMarginLabRoute,
   WorkspaceSignalDeskRoute: WorkspaceSignalDeskRoute,
   WorkspaceTreasuryRoute: WorkspaceTreasuryRoute,
   WorkspaceUtilizationSimulatorRoute: WorkspaceUtilizationSimulatorRoute,
   WorkspaceVarianceNarratorRoute: WorkspaceVarianceNarratorRoute,
   WorkspaceVendorPortfolioRoute: WorkspaceVendorPortfolioRoute,
+  WorkspaceYearOneRoadmapRoute: WorkspaceYearOneRoadmapRoute,
   WorkspaceIndexRoute: WorkspaceIndexRoute,
 }
 
