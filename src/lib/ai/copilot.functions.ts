@@ -9,6 +9,9 @@ import {
   vendorMixCurrent,
   arrByProduct,
   computeCostPerAction,
+  customers,
+  products,
+  forecastHistory,
 } from "@/lib/mock/data";
 
 export type Msg = { role: "user" | "assistant" | "system"; content: string };
@@ -262,5 +265,171 @@ export async function forecastExplainer(history: unknown[]): Promise<{
     reply:
       "Forecast accuracy on LLM COGS deteriorated sharply after February 2026 -- driven by the Opus 4.7 tokenizer change which added about 35% to coding-agent token counts that the model never saw during training. New ARR forecasts have improved as Sequencing pipeline matured. *-- fallback commentary*",
     error: true,
+  };
+}
+
+
+export type CustomerProfitabilityInput = {
+  customerName: string;
+  monthlyActions: number;
+  avgTokensIn: number;
+  avgTokensOut: number;
+  cacheHitRate: number;
+  monthlyRevenueUsd: number;
+};
+
+export type CustomerProfitability = {
+  customer: string;
+  segment: string;
+  monthlyRevenueUsd: number;
+  estimatedMonthlyCostUsd: number;
+  grossMarginPct: number;
+  costPerActionUsd: number;
+  marginDeltaToSequencingPct: number;
+  sourceAttribution: string;
+  recommendedNextAction: string;
+};
+
+export function getCustomerProfitability(input: CustomerProfitabilityInput): CustomerProfitability {
+  const customer =
+    customers.find((c) => c.name.toLowerCase() === input.customerName.trim().toLowerCase()) ??
+    customers[0];
+  const sequencingGmPct = (products.find((p) => p.code === "sequencing")?.gm ?? 0.54) * 100;
+  const perAction = computeCostPerAction({
+    tokensIn: input.avgTokensIn,
+    tokensOut: input.avgTokensOut,
+    cacheHitRate: input.cacheHitRate,
+    vendorMix: { openai: 0.64, anthropic: 0.28, google: 0.06, deepseek: 0.02 },
+    discountPct: 18,
+    routingOverheadPct: 10,
+  }).total;
+  const estimatedMonthlyCostUsd = perAction * Math.max(0, input.monthlyActions);
+  const revenue = Math.max(0, input.monthlyRevenueUsd);
+  const grossMarginPct = revenue > 0 ? ((revenue - estimatedMonthlyCostUsd) / revenue) * 100 : 0;
+
+  return {
+    customer: customer.name,
+    segment: customer.segment,
+    monthlyRevenueUsd: revenue,
+    estimatedMonthlyCostUsd: Number(estimatedMonthlyCostUsd.toFixed(2)),
+    grossMarginPct: Number(grossMarginPct.toFixed(1)),
+    costPerActionUsd: Number(perAction.toFixed(6)),
+    marginDeltaToSequencingPct: Number((grossMarginPct - sequencingGmPct).toFixed(1)),
+    sourceAttribution:
+      "Source: getCustomerProfitability deterministic calculation using src/lib/mock/data.ts (customers, products, computeCostPerAction).",
+    recommendedNextAction:
+      grossMarginPct < sequencingGmPct
+        ? "Raise this account's included-action cap price floor at renewal to restore margin."
+        : "Keep pricing unchanged and monitor monthly usage mix for margin drift.",
+  };
+}
+
+export type FinOpsRecommendationInput = {
+  monthlyActions: number;
+  avgTokensIn: number;
+  avgTokensOut: number;
+  currentCacheHitRate: number;
+  targetCacheHitRate: number;
+};
+
+export type FinOpsRecommendation = {
+  baselineMonthlyCostUsd: number;
+  optimizedMonthlyCostUsd: number;
+  projectedSavingsUsd: number;
+  projectedSavingsPct: number;
+  primaryLevers: string[];
+  sourceAttribution: string;
+  recommendedNextAction: string;
+};
+
+export function getFinOpsRecommendation(input: FinOpsRecommendationInput): FinOpsRecommendation {
+  const baselineCpa = computeCostPerAction({
+    tokensIn: input.avgTokensIn,
+    tokensOut: input.avgTokensOut,
+    cacheHitRate: input.currentCacheHitRate,
+    vendorMix: { openai: 0.64, anthropic: 0.28, google: 0.06, deepseek: 0.02 },
+    discountPct: 18,
+    routingOverheadPct: 10,
+  }).total;
+  const optimizedCpa = computeCostPerAction({
+    tokensIn: input.avgTokensIn,
+    tokensOut: input.avgTokensOut,
+    cacheHitRate: input.targetCacheHitRate,
+    vendorMix: { openai: 0.5, anthropic: 0.2, google: 0.22, deepseek: 0.08 },
+    discountPct: 21,
+    routingOverheadPct: 8,
+  }).total;
+  const baselineMonthlyCostUsd = baselineCpa * Math.max(0, input.monthlyActions);
+  const optimizedMonthlyCostUsd = optimizedCpa * Math.max(0, input.monthlyActions);
+  const projectedSavingsUsd = baselineMonthlyCostUsd - optimizedMonthlyCostUsd;
+  const projectedSavingsPct = baselineMonthlyCostUsd
+    ? (projectedSavingsUsd / baselineMonthlyCostUsd) * 100
+    : 0;
+
+  return {
+    baselineMonthlyCostUsd: Number(baselineMonthlyCostUsd.toFixed(2)),
+    optimizedMonthlyCostUsd: Number(optimizedMonthlyCostUsd.toFixed(2)),
+    projectedSavingsUsd: Number(projectedSavingsUsd.toFixed(2)),
+    projectedSavingsPct: Number(projectedSavingsPct.toFixed(1)),
+    primaryLevers: [
+      "Increase cache hit rate on repeated prompt prefixes.",
+      "Shift low-risk traffic from OpenAI/Anthropic to Gemini Flash and DeepSeek pilot lanes.",
+      "Tighten routing overhead budget from 10% to 8%.",
+    ],
+    sourceAttribution:
+      "Source: getFinOpsRecommendation deterministic scenario using computeCostPerAction and vendor mix assumptions in src/lib/mock/data.ts.",
+    recommendedNextAction:
+      "Run a 2-week routing experiment to hit the target cache rate before renewing annual vendor commits.",
+  };
+}
+
+export type RenewalRiskBridgeInput = {
+  period: string;
+  customerName: string;
+  contractArrUsd: number;
+};
+
+export type RenewalRiskBridge = {
+  customer: string;
+  period: string;
+  riskScore: number;
+  drivers: { label: string; impactUsd: number }[];
+  netRiskUsd: number;
+  sourceAttribution: string;
+  recommendedNextAction: string;
+};
+
+export function getRenewalRiskBridge(input: RenewalRiskBridgeInput): RenewalRiskBridge {
+  const customer =
+    customers.find((c) => c.name.toLowerCase() === input.customerName.trim().toLowerCase()) ??
+    customers[0];
+  const periodRecords = varianceRecords.filter((r) => r.period === input.period);
+  const cogsPressure = periodRecords
+    .filter((r) => r.lineItem === "llm_cogs")
+    .reduce((sum, r) => sum + (r.actual - r.plan), 0);
+  const churnPressure = periodRecords
+    .filter((r) => r.lineItem === "churn")
+    .reduce((sum, r) => sum + Math.max(0, r.actual - r.plan), 0);
+  const forecastVolatility = Math.abs(
+    forecastHistory.filter((f) => f.lineItem === "llm_cogs").at(-1)?.missPct ?? 0,
+  );
+
+  const netRiskUsd = cogsPressure * 0.18 + churnPressure * 0.22 + input.contractArrUsd * (forecastVolatility / 1000);
+  const riskScore = Math.max(0, Math.min(100, Math.round((netRiskUsd / Math.max(1, input.contractArrUsd)) * 1000)));
+
+  return {
+    customer: customer.name,
+    period: input.period,
+    riskScore,
+    drivers: [
+      { label: "LLM COGS over-plan spillover", impactUsd: Number((cogsPressure * 0.18).toFixed(0)) },
+      { label: "SMB churn signal spillover", impactUsd: Number((churnPressure * 0.22).toFixed(0)) },
+      { label: "Forecast volatility premium", impactUsd: Number((input.contractArrUsd * (forecastVolatility / 1000)).toFixed(0)) },
+    ],
+    netRiskUsd: Number(netRiskUsd.toFixed(0)),
+    sourceAttribution:
+      "Source: getRenewalRiskBridge deterministic bridge using varianceRecords + forecastHistory from src/lib/mock/data.ts.",
+    recommendedNextAction:
+      "Schedule an executive renewal prep with CS this week focused on usage cap economics and adoption proof points.",
   };
 }
