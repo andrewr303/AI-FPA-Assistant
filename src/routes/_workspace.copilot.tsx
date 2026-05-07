@@ -18,10 +18,10 @@ export const Route = createFileRoute("/_workspace/copilot")({
 });
 
 const STARTERS = [
-  "Summarize the biggest budget risk this quarter in 5 bullets.",
-  "Which KPI is most likely to miss next month and why?",
+  "Run getCustomerProfitability for HubSpot with 2.1M monthly actions and explain the margin delta.",
+  "Run getFinOpsRecommendation for 12M monthly actions and recommend the top savings lever.",
+  "Run getRenewalRiskBridge for Deel in 2026-03 and summarize the risk bridge.",
   "Write a board-ready narrative for ARR, GM, and burn.",
-  "Give me 3 levers to improve gross margin with low execution risk.",
 ];
 
 const KPI_KEYS = ["arr", "gm", "nrr", "burn", "rule_of_40", "llm_cogs"] as const;
