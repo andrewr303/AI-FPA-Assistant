@@ -39,7 +39,7 @@ const NAV = [
   { to: "/year-one-roadmap", label: "Year One Roadmap", icon: Map, group: "Planning" },
   { to: "/signal-desk", label: "Signal Desk", icon: Radio, group: "Ops" },
   { to: "/ai-finops-optimizer", label: "AI FinOps Optimizer", icon: BrainCircuit, group: "Ops" },
-  { to: "/copilot", label: "Ask Finance", icon: Sparkles, group: "Ops" },
+  { to: "/copilot", label: "Ask FP&A Expert", icon: Sparkles, group: "Ops" },
 ] as const;
 
 export function SidebarNav() {

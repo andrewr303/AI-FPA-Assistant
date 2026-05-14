@@ -40,7 +40,7 @@ export function TopBar({
           className="gap-2 glow-violet bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Sparkles className="h-4 w-4" />
-          Ask Finance
+          Ask FP&A Expert
         </Button>
       </div>
     </div>

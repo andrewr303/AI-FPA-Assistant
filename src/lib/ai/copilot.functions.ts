@@ -130,11 +130,11 @@ function buildContext() {
 }
 
 const FALLBACK_NOTE =
-  "AI Gateway is not available yet. Configure the server-side AI_GATEWAY_API_KEY and retry.\n\n*-- drawn from runtime AI configuration*";
+  "AI Gateway is not available yet. Add an API key in the app settings or configure server-side AI_GATEWAY_API_KEY and retry.\n\n*-- drawn from runtime AI configuration*";
 
 // ============= /ask-finance =============
 
-export async function askFinance(args: { data: { messages: Msg[] } }): Promise<{
+export async function askFinance(args: { data: { messages: Msg[]; apiKey?: string; companyName?: string; customData?: string } }): Promise<{
   reply: string;
   error: boolean;
 }> {
@@ -142,6 +142,9 @@ export async function askFinance(args: { data: { messages: Msg[] } }): Promise<{
     const r = await call<{ reply: string; error: boolean }>("/ask-finance", {
       messages: args.data.messages,
       context: buildContext(),
+      apiKey: args.data.apiKey,
+      companyName: args.data.companyName,
+      customData: args.data.customData,
     });
     if (r) return r;
   } catch (e) {
