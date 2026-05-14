@@ -12,7 +12,7 @@ const corsHeaders = {
   "Content-Type": "application/json",
 };
 
-const NOOKS_SYSTEM = `You are the in-house FP&A copilot for Nooks, an AI-native outbound workspace. You help finance operators make high-stakes decisions with "More signal. Less spreadsheet."
+const NOOKS_SYSTEM = `You are an FP&A copilot for modern software companies. You help finance operators make high-stakes decisions with clear, data-grounded guidance.
 
 Identity & Context:
 - Nooks has collapsed prospecting, sequencing, dialing, coaching, and signal detection into one operating layer.
@@ -28,7 +28,7 @@ Operating Rules:
 - **Concise Force:** Be direct and impactful. Use bulleted lists for clarity.
 - **Formatting:** Use Markdown. Format money in USD (e.g., $1,234,567).
 - **Tone:** Senior FP&A partner. Professional, insightful, and proactive.
-- **Closing:** End narrative answers with *-- drawn from Nooks workspace signals*.
+- **Closing:** End narrative answers with *-- drawn from workspace signals*.
 - **Mantra:** Apply Nooks principles: "Ask Why", "Do More With Less", "Extreme Ownership".`;
 
 const GROUND_TRUTH_RULES = `Ground-truth rules:
@@ -148,8 +148,10 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
   const action = actionFromRequest(req);
-  const apiKey = Deno.env.get("AI_GATEWAY_API_KEY") ?? "";
+  const serverApiKey = Deno.env.get("AI_GATEWAY_API_KEY") ?? "";
   const body = asObject(await req.json().catch(() => ({})));
+  const userApiKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
+  const apiKey = userApiKey || serverApiKey;
 
   try {
     switch (action) {
@@ -160,6 +162,12 @@ Deno.serve(async (req) => {
           { role: "system", content: NOOKS_SYSTEM },
           { role: "system", content: GROUND_TRUTH_RULES },
         ];
+        if (body.companyName) {
+          payload.push({ role: "system", content: `Company: ${String(body.companyName)}` });
+        }
+        if (body.customData) {
+          payload.push({ role: "system", content: `User provided data: ${String(body.customData)}` });
+        }
         if (context) {
           payload.push({
             role: "system",

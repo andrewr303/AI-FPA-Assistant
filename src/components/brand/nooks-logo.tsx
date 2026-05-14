@@ -14,7 +14,7 @@ export function NooksLogo({
         aria-hidden
       />
       <div className="flex flex-col leading-none">
-        <span className="text-lg font-bold tracking-tight lowercase text-foreground">nooks</span>
+        <span className="text-lg font-bold tracking-tight text-foreground">AI FP&amp;A Expert</span>
         {!compact && (
           <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             FP&amp;A Workspace

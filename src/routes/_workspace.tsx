@@ -25,7 +25,7 @@ function WorkspaceLayout() {
         <main className="flex-1 min-w-0 flex flex-col pb-16 md:pb-0">
           <Outlet />
           <footer className="mt-auto border-t border-border px-6 py-4 text-[11px] text-muted-foreground font-medium uppercase tracking-widest flex items-center justify-between">
-            <span>Nooks FP&amp;A Workspace</span>
+            <span>AI FP&amp;A Expert</span>
             <span className="text-primary/80">More signal. Less spreadsheet.</span>
           </footer>
         </main>

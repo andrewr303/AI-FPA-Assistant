@@ -64,18 +64,20 @@ function read_config(string $name): string {
     return '';
 }
 
-$apiKey = read_config('AI_GATEWAY_API_KEY');
-if (!$isDiagnostic && !$apiKey) {
-    http_response_code(500);
-    echo json_encode([
-        'error' => 'AI_GATEWAY_API_KEY not configured on the server',
-        'code' => 'missing_ai_gateway_api_key',
-    ]); exit;
-}
+$serverApiKey = read_config('AI_GATEWAY_API_KEY');
 
 $body   = $method === 'POST'
     ? (json_decode(file_get_contents('php://input') ?: '{}', true) ?? [])
     : [];
+$userApiKey = is_string($body['apiKey'] ?? null) ? trim((string)$body['apiKey']) : '';
+$apiKey = $userApiKey !== '' ? $userApiKey : $serverApiKey;
+if (!$isDiagnostic && !$apiKey) {
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'No API key provided. Add one in the app or configure AI_GATEWAY_API_KEY on the server',
+        'code' => 'missing_ai_gateway_api_key',
+    ]); exit;
+}
 
 const GATEWAY = 'https://ai-gateway.vercel.sh/v1/chat/completions';
 $configuredModel = read_config('AI_GATEWAY_MODEL') ?: 'google/gemini-3.1-pro-preview';
