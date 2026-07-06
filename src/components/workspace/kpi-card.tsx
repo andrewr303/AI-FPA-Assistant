@@ -34,8 +34,8 @@ export function KpiCard({
     <Card
       onClick={onClick}
       className={cn(
-        "group relative overflow-hidden p-5 bg-card border-border transition-all cursor-pointer",
-        "hover:border-primary/40 hover:shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent)]",
+        "group relative overflow-hidden p-5 bg-card border-border glass-interactive cursor-pointer",
+        "hover:border-primary/40",
       )}
     >
       <div className="flex items-start justify-between gap-3 mb-3">

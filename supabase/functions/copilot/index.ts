@@ -4,12 +4,30 @@ type JsonObject = Record<string, unknown>;
 
 const AI_GATEWAY_CHAT_URL = "https://ai-gateway.vercel.sh/v1/chat/completions";
 const DEFAULT_MODEL = "google/gemini-3-flash";
+const MISSING_KEY_CODE = "missing_ai_gateway_api_key";
+
+// Actions this proxy is allowed to handle; anything else is rejected up front.
+const ALLOWED_ACTIONS = new Set([
+  "ask-finance",
+  "variance-brief",
+  "pricing-recommendation",
+  "vendor-rollout",
+  "forecast-explainer",
+]);
+
+// Input hardening limits.
+const MAX_BODY_BYTES = 256 * 1024;
+const MAX_MESSAGES = 24;
+const MAX_CONTENT_CHARS = 8000;
+const MAX_FIELD_CHARS = 4000;
+const MAX_ARRAY_ITEMS = 200;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": Deno.env.get("ALLOWED_ORIGIN") ?? "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Content-Type": "application/json",
+  "X-Content-Type-Options": "nosniff",
 };
 
 const NOOKS_SYSTEM = `You are an FP&A copilot for modern software companies. You help finance operators make high-stakes decisions with clear, data-grounded guidance.
@@ -50,7 +68,7 @@ function asObject(input: unknown): JsonObject {
 
 function toMessages(input: unknown): GatewayMessage[] {
   if (!Array.isArray(input)) return [];
-  return input.flatMap((item): GatewayMessage[] => {
+  const mapped = input.flatMap((item): GatewayMessage[] => {
     const message = asObject(item);
     const role = message.role;
     const content = message.content;
@@ -58,10 +76,19 @@ function toMessages(input: unknown): GatewayMessage[] {
       (role === "user" || role === "assistant" || role === "system") &&
       typeof content === "string"
     ) {
-      return [{ role, content: content.slice(0, 8000) }];
+      return [{ role, content: content.slice(0, MAX_CONTENT_CHARS) }];
     }
     return [];
   });
+  return mapped.slice(-MAX_MESSAGES);
+}
+
+function clampField(input: unknown): string {
+  return typeof input === "string" ? input.slice(0, MAX_FIELD_CHARS) : "";
+}
+
+function clampArray(input: unknown): unknown[] {
+  return Array.isArray(input) ? input.slice(0, MAX_ARRAY_ITEMS) : [];
 }
 
 function stripJsonFence(value: string): string {
@@ -85,7 +112,12 @@ async function callGateway(
   options: { maxTokens: number; temperature: number; jsonMode?: boolean },
 ): Promise<string> {
   if (!apiKey) {
-    throw new Error("AI_GATEWAY_API_KEY is not configured on the server.");
+    const err = new Error(
+      "No API key provided. Add one in the app or configure AI_GATEWAY_API_KEY on the server.",
+    ) as Error & { code?: string; status?: number };
+    err.code = MISSING_KEY_CODE;
+    err.status = 500;
+    throw err;
   }
 
   const response = await fetch(AI_GATEWAY_CHAT_URL, {
@@ -101,10 +133,14 @@ async function callGateway(
       temperature: options.temperature,
       ...(options.jsonMode ? { response_format: { type: "json_object" } } : {}),
     }),
+    signal: AbortSignal.timeout(60_000),
   });
 
   const text = await response.text();
-  let payload: { choices?: { message?: { content?: string | null } }[]; error?: { message?: string } } = {};
+  let payload: {
+    choices?: { message?: { content?: string | null } }[];
+    error?: { message?: string };
+  } = {};
   try {
     payload = text ? JSON.parse(text) : {};
   } catch {
@@ -112,12 +148,17 @@ async function callGateway(
   }
 
   if (!response.ok) {
-    throw new Error(payload.error?.message ?? `AI Gateway returned ${response.status}.`);
+    // Log upstream details server-side; do not leak them to the client.
+    console.error(
+      `[copilot] gateway ${response.status}: ${payload.error?.message ?? text.slice(0, 500)}`,
+    );
+    throw new Error("copilot upstream failure");
   }
 
   const content = payload.choices?.[0]?.message?.content?.trim();
   if (!content) {
-    throw new Error("AI Gateway returned an empty response.");
+    console.error("[copilot] gateway returned an empty response.");
+    throw new Error("copilot upstream failure");
   }
   return content;
 }
@@ -148,8 +189,23 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
   const action = actionFromRequest(req);
+  if (!ALLOWED_ACTIONS.has(action)) {
+    return json({ error: `unknown copilot action: ${action || "(missing)"}` }, 404);
+  }
+
+  const rawBody = await req.text();
+  if (rawBody.length > MAX_BODY_BYTES) {
+    return json({ error: "payload too large" }, 413);
+  }
+  let parsedBody: unknown;
+  try {
+    parsedBody = rawBody ? JSON.parse(rawBody) : {};
+  } catch {
+    return json({ error: "invalid JSON body" }, 400);
+  }
+
   const serverApiKey = Deno.env.get("AI_GATEWAY_API_KEY") ?? "";
-  const body = asObject(await req.json().catch(() => ({})));
+  const body = asObject(parsedBody);
   const userApiKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
   const apiKey = userApiKey || serverApiKey;
 
@@ -158,15 +214,20 @@ Deno.serve(async (req) => {
       case "ask-finance": {
         const messages = toMessages(body.messages);
         const context = body.context;
+        const companyName = clampField(body.companyName);
+        const customData = clampField(body.customData);
         const payload: GatewayMessage[] = [
           { role: "system", content: NOOKS_SYSTEM },
           { role: "system", content: GROUND_TRUTH_RULES },
         ];
-        if (body.companyName) {
-          payload.push({ role: "system", content: `Company: ${String(body.companyName)}` });
+        if (companyName) {
+          payload.push({ role: "system", content: `Company: ${companyName}` });
         }
-        if (body.customData) {
-          payload.push({ role: "system", content: `User provided data: ${String(body.customData)}` });
+        if (customData) {
+          payload.push({
+            role: "system",
+            content: `User provided data: ${customData}`,
+          });
         }
         if (context) {
           payload.push({
@@ -182,7 +243,7 @@ Deno.serve(async (req) => {
       case "variance-brief": {
         const prompt = jsonTaskPrompt(
           `Write a terse board variance brief for ${String(body.period ?? "the selected period")}.`,
-          { period: body.period, records: body.records ?? [] },
+          { period: clampField(body.period), records: clampArray(body.records) },
           '{ "headline": string, "drivers": {"name": string, "impact_usd": number, "direction": "favorable" | "unfavorable"}[], "risks": string[], "recommendations": string[] }',
           "Headline must include one specific dollar variance. Drivers must reflect favorable/unfavorable finance logic. Risks and recommendations should be concrete and non-alarmist.",
         );
@@ -201,7 +262,7 @@ Deno.serve(async (req) => {
       case "pricing-recommendation": {
         const prompt = jsonTaskPrompt(
           "Choose the strongest AI Sequencing pricing play for Nooks.",
-          { plays: body.plays ?? [] },
+          { plays: clampArray(body.plays) },
           '{ "recommended_id": string, "rationale": string, "risks": string[] }',
           "Prefer the option that best balances ARR, NRR, gross margin, and Rule of 40. Rationale must cite at least two supplied numbers. Include 2-3 risks.",
         );
@@ -220,7 +281,7 @@ Deno.serve(async (req) => {
       case "vendor-rollout": {
         const prompt = jsonTaskPrompt(
           "Recommend which LLM models Nooks should scale, pilot, or deprecate.",
-          { models: body.models ?? [], mix: body.mix ?? [] },
+          { models: clampArray(body.models), mix: clampArray(body.mix) },
           '{ "scale": string[], "pilot": string[], "deprecate": string[], "rationale": string, "concentration_warning": string | null }',
           "Each list must contain model_name strings from the input. Rationale must cite cost per action, quality, or concentration risk. Flag any vendor above 60% share.",
         );
@@ -243,7 +304,7 @@ Deno.serve(async (req) => {
           "Return one paragraph of 3-4 sentences for a board packet. No JSON.",
           "",
           "History JSON:",
-          JSON.stringify(body.history ?? [], null, 2),
+          JSON.stringify(clampArray(body.history), null, 2),
         ].join("\n");
         const reply = await callGateway(
           apiKey,
@@ -261,8 +322,13 @@ Deno.serve(async (req) => {
         return json({ error: `unknown copilot action: ${action || "(missing)"}` }, 404);
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : "copilot upstream failure";
-    console.error("[copilot]", message);
-    return json({ error: message }, message.includes("AI_GATEWAY_API_KEY") ? 500 : 502);
+    const typed = error as Error & { code?: string; status?: number };
+    if (typed?.code === MISSING_KEY_CODE) {
+      console.error("[copilot]", typed.message);
+      return json({ error: typed.message, code: MISSING_KEY_CODE }, typed.status ?? 500);
+    }
+    console.error("[copilot]", typed?.message ?? String(error));
+    // Never surface upstream/internal error details to the client.
+    return json({ error: "copilot upstream failure" }, 502);
   }
 });

@@ -11,17 +11,67 @@
 
 declare(strict_types=1);
 header('Content-Type: application/json');
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: no-referrer');
 $origin = getenv('ALLOWED_ORIGIN') ?: '*';
 header("Access-Control-Allow-Origin: $origin");
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+header('Vary: Origin');
+
+// Hardening limits — bound memory, upstream cost, and prompt-injection surface.
+const MAX_BODY_BYTES   = 262144; // 256 KB
+const MAX_MESSAGES     = 24;
+const MAX_CONTENT_CHARS = 8000;
+const MAX_FIELD_CHARS  = 4000;
+const MAX_ARRAY_ITEMS  = 200;
+
+// Actions this proxy is allowed to handle; anything else is rejected up front.
+const ALLOWED_ACTIONS = [
+    'diagnostic',
+    'ask-finance',
+    'variance-brief',
+    'pricing-recommendation',
+    'vendor-rollout',
+    'forecast-explainer',
+];
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $action = $_GET['action'] ?? '';
 $isDiagnostic = $action === 'diagnostic';
+if (!in_array($action, ALLOWED_ACTIONS, true)) {
+    http_response_code(404);
+    echo json_encode(['error' => "unknown action: $action"]);
+    exit;
+}
 if ($method !== 'POST' && !($method === 'GET' && $isDiagnostic)) {
     http_response_code(405); echo json_encode(['error' => 'method not allowed']); exit;
+}
+
+/** Clamp a value to a string of at most $max characters. */
+function clamp_str($value, int $max): string {
+    return is_string($value) ? mb_substr($value, 0, $max) : '';
+}
+
+/** Clamp an array to at most $max items (returns [] for non-arrays). */
+function clamp_array($value, int $max = MAX_ARRAY_ITEMS): array {
+    return is_array($value) ? array_slice($value, 0, $max) : [];
+}
+
+/** Sanitize the chat message list: valid roles, clamped content, bounded count. */
+function clamp_messages($value): array {
+    if (!is_array($value)) return [];
+    $out = [];
+    foreach ($value as $m) {
+        if (!is_array($m)) continue;
+        $role = $m['role'] ?? '';
+        $content = $m['content'] ?? '';
+        if (!in_array($role, ['user', 'assistant', 'system'], true)) continue;
+        if (!is_string($content)) continue;
+        $out[] = ['role' => $role, 'content' => mb_substr($content, 0, MAX_CONTENT_CHARS)];
+    }
+    return array_slice($out, -MAX_MESSAGES);
 }
 
 function read_env_file_value(string $name): string {
@@ -66,9 +116,26 @@ function read_config(string $name): string {
 
 $serverApiKey = read_config('AI_GATEWAY_API_KEY');
 
-$body   = $method === 'POST'
-    ? (json_decode(file_get_contents('php://input') ?: '{}', true) ?? [])
-    : [];
+$rawInput = '';
+if ($method === 'POST') {
+    $rawInput = file_get_contents('php://input') ?: '';
+    if (strlen($rawInput) > MAX_BODY_BYTES) {
+        http_response_code(413);
+        echo json_encode(['error' => 'payload too large']);
+        exit;
+    }
+}
+if ($method === 'POST' && $rawInput !== '') {
+    $decoded = json_decode($rawInput, true);
+    if (!is_array($decoded)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'invalid JSON body']);
+        exit;
+    }
+    $body = $decoded;
+} else {
+    $body = [];
+}
 $userApiKey = is_string($body['apiKey'] ?? null) ? trim((string)$body['apiKey']) : '';
 $apiKey = $userApiKey !== '' ? $userApiKey : $serverApiKey;
 if (!$isDiagnostic && !$apiKey) {
@@ -80,7 +147,7 @@ if (!$isDiagnostic && !$apiKey) {
 }
 
 const GATEWAY = 'https://ai-gateway.vercel.sh/v1/chat/completions';
-$configuredModel = read_config('AI_GATEWAY_MODEL') ?: 'google/gemini-3.1-pro-preview';
+$configuredModel = read_config('AI_GATEWAY_MODEL') ?: 'google/gemini-3-flash';
 
 function call_gateway(string $apiKey, string $model, array $messages, int $maxTokens, float $temp, bool $jsonMode = false): string {
     $payload = [
@@ -289,7 +356,7 @@ try {
                 'php_sapi'           => PHP_SAPI,
                 'ground_truth'       => ['readable' => $gtReadable, 'path' => $gtPathUsed],
                 'gateway_reachable'  => $reach,
-                'configured_model'   => read_config('AI_GATEWAY_MODEL') ?: 'google/gemini-3.1-pro-preview',
+                'configured_model'   => read_config('AI_GATEWAY_MODEL') ?: 'google/gemini-3-flash',
                 'allowed_origin'     => getenv('ALLOWED_ORIGIN') ?: '*',
             ]);
             break;
@@ -297,12 +364,20 @@ try {
 
         // ===== /api/copilot.php?action=ask-finance =====
         case 'ask-finance': {
-            $messages = $body['messages'] ?? [];
+            $messages = clamp_messages($body['messages'] ?? []);
             $context  = $body['context']  ?? null;
+            $companyName = clamp_str($body['companyName'] ?? '', MAX_FIELD_CHARS);
+            $customData  = clamp_str($body['customData'] ?? '', MAX_FIELD_CHARS);
             $payload  = [
                 ['role' => 'system', 'content' => $NOOKS_SYSTEM],
                 ['role' => 'system', 'content' => ground_truth_context($action)],
             ];
+            if ($companyName !== '') {
+                $payload[] = ['role' => 'system', 'content' => "Company: $companyName"];
+            }
+            if ($customData !== '') {
+                $payload[] = ['role' => 'system', 'content' => "User provided data: $customData"];
+            }
             if ($context) {
                 $payload[] = ['role' => 'system',
                     'content' => "Live workspace context (JSON):\n" . json_encode($context)];
@@ -315,8 +390,8 @@ try {
 
         // ===== /api/copilot.php?action=variance-brief =====
         case 'variance-brief': {
-            $period  = $body['period']  ?? 'unknown';
-            $records = $body['records'] ?? [];
+            $period  = clamp_str($body['period'] ?? 'unknown', MAX_FIELD_CHARS) ?: 'unknown';
+            $records = clamp_array($body['records'] ?? []);
             $prompt = "Write a terse board variance brief for $period.\n"
                     . "Variance data JSON:\n" . json_encode($records, JSON_PRETTY_PRINT) . "\n\n"
                     . "Return ONLY a JSON object (no fences) of shape:\n"
@@ -334,7 +409,7 @@ try {
 
         // ===== /api/copilot.php?action=pricing-recommendation =====
         case 'pricing-recommendation': {
-            $plays = $body['plays'] ?? [];
+            $plays = clamp_array($body['plays'] ?? []);
             $prompt = "Choose the strongest AI Sequencing pricing play for Nooks.\n"
                     . "Plays JSON:\n" . json_encode($plays, JSON_PRETTY_PRINT) . "\n\n"
                     . "Return ONLY a JSON object of shape:\n"
@@ -352,8 +427,8 @@ try {
 
         // ===== /api/copilot.php?action=vendor-rollout =====
         case 'vendor-rollout': {
-            $models  = $body['models']  ?? [];
-            $mix     = $body['mix']     ?? [];
+            $models  = clamp_array($body['models']  ?? []);
+            $mix     = clamp_array($body['mix']     ?? []);
             $prompt = "Recommend which LLM models Nooks should scale, pilot, or deprecate.\n"
                     . "Current mix JSON:\n"
                     . json_encode($mix, JSON_PRETTY_PRINT) . "\n\n"
@@ -373,7 +448,7 @@ try {
 
         // ===== /api/copilot.php?action=forecast-explainer =====
         case 'forecast-explainer': {
-            $history = $body['history'] ?? [];
+            $history = clamp_array($body['history'] ?? []);
             $prompt = "Explain why LLM cost forecast accuracy is degrading.\n"
                     . "Use the supplied forecast-vs-actual history and reference the February 2026 Opus 4.7 tokenizer change only as a driver, not as the whole story if the data says otherwise.\n"
                     . "Return one paragraph of 3-4 sentences for a board packet. No JSON.\n\n"

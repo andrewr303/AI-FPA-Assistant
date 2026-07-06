@@ -12,7 +12,7 @@ export function TopBar({
   onAskFinance?: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-border bg-background/60 backdrop-blur-xl px-6 py-4 sticky top-0 z-30">
+    <div className="flex items-center justify-between gap-4 border-b border-border/60 glass-bar px-6 py-4 sticky top-0 z-30">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-semibold tracking-tight truncate">{title}</h1>
