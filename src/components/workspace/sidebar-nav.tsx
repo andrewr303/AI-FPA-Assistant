@@ -47,8 +47,8 @@ export function SidebarNav() {
   const groups = Array.from(new Set(NAV.map((n) => n.group)));
 
   return (
-    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
-      <div className="px-5 pt-6 pb-4 border-b border-sidebar-border">
+    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-sidebar-border glass-bar">
+      <div className="px-5 pt-6 pb-4 border-b border-sidebar-border/70">
         <NooksLogo />
       </div>
       <nav className="flex-1 overflow-y-auto scrollbar-thin px-3 py-4 space-y-5">
