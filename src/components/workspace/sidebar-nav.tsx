@@ -31,7 +31,12 @@ const NAV = [
   { to: "/vendor-portfolio", label: "Vendor Portfolio", icon: Boxes, group: "Cost engineering" },
   { to: "/pricing-plays", label: "Pricing Plays", icon: Tag, group: "Revenue" },
   { to: "/arr-waterfall", label: "ARR Waterfall", icon: Waves, group: "Revenue" },
-  { to: "/customer-profitability", label: "Customer Profitability", icon: HandCoins, group: "Revenue" },
+  {
+    to: "/customer-profitability",
+    label: "Customer Profitability",
+    icon: HandCoins,
+    group: "Revenue",
+  },
   { to: "/renewal-risk", label: "Renewal Risk", icon: ShieldAlert, group: "Revenue" },
   { to: "/variance-narrator", label: "Variance Narrator", icon: FileText, group: "Planning" },
   { to: "/headcount-plays", label: "Headcount", icon: Users, group: "Planning" },

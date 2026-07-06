@@ -4,7 +4,10 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import path from "node:path";
-import { handleCopilotAction } from "./src/lib/ai/copilot.gateway";
+import { handleCopilotAction, CopilotError } from "./src/lib/ai/copilot.gateway";
+
+// Reject request bodies larger than this to bound memory + upstream cost.
+const MAX_BODY_BYTES = 256 * 1024;
 
 function copilotDevApi(): Plugin {
   let apiKey = "";
@@ -39,15 +42,25 @@ function copilotDevApi(): Plugin {
             req.method === "POST"
               ? await new Promise<unknown>((resolve, reject) => {
                   let raw = "";
+                  let bytes = 0;
+                  let tooLarge = false;
                   req.setEncoding("utf8");
                   req.on("data", (chunk: string) => {
+                    if (tooLarge) return;
+                    bytes += Buffer.byteLength(chunk, "utf8");
+                    if (bytes > MAX_BODY_BYTES) {
+                      tooLarge = true;
+                      reject(new CopilotError("payload too large", 413));
+                      return;
+                    }
                     raw += chunk;
                   });
                   req.on("end", () => {
+                    if (tooLarge) return;
                     try {
                       resolve(raw ? JSON.parse(raw) : {});
-                    } catch (error) {
-                      reject(error);
+                    } catch {
+                      reject(new CopilotError("invalid JSON body", 400));
                     }
                   });
                   req.on("error", reject);
@@ -57,13 +70,24 @@ function copilotDevApi(): Plugin {
           const payload = await handleCopilotAction(action, body, { apiKey });
           res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
+          res.setHeader("X-Content-Type-Options", "nosniff");
           res.end(JSON.stringify(payload));
         } catch (error) {
-          const message = error instanceof Error ? error.message : "copilot upstream failure";
-          server.config.logger.error(`[copilot] ${message}`);
-          res.statusCode = message.startsWith("Unknown copilot action") ? 404 : 502;
+          const status = error instanceof CopilotError ? error.status : 502;
+          const code = error instanceof CopilotError ? error.code : undefined;
+          const message =
+            error instanceof CopilotError && status !== 502
+              ? error.message
+              : "copilot upstream failure";
+          if (!(error instanceof CopilotError)) {
+            server.config.logger.error(
+              `[copilot] ${error instanceof Error ? error.message : String(error)}`,
+            );
+          }
+          res.statusCode = status;
           res.setHeader("Content-Type", "application/json");
-          res.end(JSON.stringify({ error: message }));
+          res.setHeader("X-Content-Type-Options", "nosniff");
+          res.end(JSON.stringify(code ? { error: message, code } : { error: message }));
         }
       });
     },

@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-export const AI_GATEWAY_MODEL = "google/gemini-3-flash";
+export const AI_GATEWAY_MODEL = process.env.AI_GATEWAY_MODEL || "google/gemini-3-flash";
 
 const AI_GATEWAY_CHAT_URL = "https://ai-gateway.vercel.sh/v1/chat/completions";
 const GROUND_TRUTH_DIR = path.resolve(process.cwd(), "ground-truths");
@@ -9,6 +9,36 @@ const DEFAULT_GROUND_TRUTH_PATH = path.resolve(
   process.cwd(),
   "ai-knowledge/ground-truth/nooks-ground-truth.md",
 );
+
+export const COPILOT_MISSING_KEY = "missing_ai_gateway_api_key";
+
+// Actions this proxy is allowed to handle. Anything else is rejected before
+// any upstream work so the endpoint cannot be used as an open relay.
+export const ALLOWED_ACTIONS = new Set([
+  "diagnostic",
+  "ask-finance",
+  "variance-brief",
+  "pricing-recommendation",
+  "vendor-rollout",
+  "forecast-explainer",
+]);
+
+// Input hardening limits — keep prompt-injection surface and upstream cost bounded.
+const MAX_MESSAGES = 24;
+const MAX_CONTENT_CHARS = 8000;
+const MAX_FIELD_CHARS = 4000;
+const MAX_ARRAY_ITEMS = 200;
+
+export class CopilotError extends Error {
+  code?: string;
+  status: number;
+  constructor(message: string, status = 502, code?: string) {
+    super(message);
+    this.name = "CopilotError";
+    this.status = status;
+    this.code = code;
+  }
+}
 
 type Role = "system" | "user" | "assistant";
 type GatewayMessage = { role: Role; content: string };
@@ -97,7 +127,7 @@ function asObject(input: unknown): JsonObject {
 
 function toMessages(input: unknown): GatewayMessage[] {
   if (!Array.isArray(input)) return [];
-  return input.flatMap((item): GatewayMessage[] => {
+  const mapped = input.flatMap((item): GatewayMessage[] => {
     const message = asObject(item);
     const role = message.role;
     const content = message.content;
@@ -105,10 +135,20 @@ function toMessages(input: unknown): GatewayMessage[] {
       (role === "user" || role === "assistant" || role === "system") &&
       typeof content === "string"
     ) {
-      return [{ role, content: content.slice(0, 8000) }];
+      return [{ role, content: content.slice(0, MAX_CONTENT_CHARS) }];
     }
     return [];
   });
+  // Keep only the most recent turns to bound prompt size and cost.
+  return mapped.slice(-MAX_MESSAGES);
+}
+
+function clampField(input: unknown): string {
+  return typeof input === "string" ? input.slice(0, MAX_FIELD_CHARS) : "";
+}
+
+function clampArray(input: unknown): unknown[] {
+  return Array.isArray(input) ? input.slice(0, MAX_ARRAY_ITEMS) : [];
 }
 
 function stripJsonFence(value: string): string {
@@ -123,7 +163,9 @@ function loadGroundTruth(): string {
 
   const docs: string[] = [];
   try {
-    const files = readdirSync(GROUND_TRUTH_DIR).filter((name) => name.toLowerCase().endsWith(".md"));
+    const files = readdirSync(GROUND_TRUTH_DIR).filter((name) =>
+      name.toLowerCase().endsWith(".md"),
+    );
     for (const file of files) {
       const fullPath = path.join(GROUND_TRUTH_DIR, file);
       docs.push(`## Source: ${file}\n${readFileSync(fullPath, "utf8")}`);
@@ -191,7 +233,11 @@ async function callGateway(
   options: GatewayOptions,
 ): Promise<string> {
   if (!apiKey) {
-    throw new Error("AI_GATEWAY_API_KEY is not configured on the server.");
+    throw new CopilotError(
+      "No API key provided. Add one in the app or configure AI_GATEWAY_API_KEY on the server.",
+      500,
+      COPILOT_MISSING_KEY,
+    );
   }
 
   const response = await fetch(AI_GATEWAY_CHAT_URL, {
@@ -207,6 +253,7 @@ async function callGateway(
       temperature: options.temperature,
       ...(options.jsonMode ? { response_format: { type: "json_object" } } : {}),
     }),
+    signal: AbortSignal.timeout(60_000),
   });
 
   const text = await response.text();
@@ -217,12 +264,17 @@ async function callGateway(
     payload = { error: { message: text.slice(0, 500) } };
   }
   if (!response.ok) {
-    throw new Error(payload.error?.message ?? `AI Gateway returned ${response.status}.`);
+    // Keep upstream error details out of the client response.
+    console.error(
+      `[copilot] gateway ${response.status}: ${payload.error?.message ?? text.slice(0, 500)}`,
+    );
+    throw new CopilotError("copilot upstream failure");
   }
 
   const content = payload.choices?.[0]?.message?.content?.trim();
   if (!content) {
-    throw new Error("AI Gateway returned an empty response.");
+    console.error("[copilot] gateway returned an empty response.");
+    throw new CopilotError("copilot upstream failure");
   }
   return content;
 }
@@ -245,6 +297,10 @@ export async function handleCopilotAction(
   config: { apiKey: string },
 ): Promise<JsonObject> {
   const body = asObject(bodyInput);
+
+  if (!ALLOWED_ACTIONS.has(action)) {
+    throw new CopilotError(`Unknown copilot action: ${action}`, 404);
+  }
 
   switch (action) {
     case "diagnostic": {
@@ -305,10 +361,18 @@ export async function handleCopilotAction(
     case "ask-finance": {
       const messages = toMessages(body.messages);
       const context = body.context;
+      const companyName = clampField(body.companyName);
+      const customData = clampField(body.customData);
       const payload: GatewayMessage[] = [
         { role: "system", content: NOOKS_SYSTEM },
         { role: "system", content: buildGroundTruthContext(action) },
       ];
+      if (companyName) {
+        payload.push({ role: "system", content: `Company: ${companyName}` });
+      }
+      if (customData) {
+        payload.push({ role: "system", content: `User provided data: ${customData}` });
+      }
       if (context) {
         payload.push({
           role: "system",
@@ -326,7 +390,7 @@ export async function handleCopilotAction(
     case "variance-brief": {
       const prompt = jsonTaskPrompt(
         `Write a terse board variance brief for ${String(body.period ?? "the selected period")}.`,
-        { period: body.period, records: body.records ?? [] },
+        { period: clampField(body.period), records: clampArray(body.records) },
         '{ "headline": string, "drivers": {"name": string, "impact_usd": number, "direction": "favorable" | "unfavorable"}[], "risks": string[], "recommendations": string[] }',
         "Headline must include one specific dollar variance. Drivers must reflect favorable/unfavorable finance logic. Risks and recommendations should be concrete and non-alarmist.",
       );
@@ -345,7 +409,7 @@ export async function handleCopilotAction(
     case "pricing-recommendation": {
       const prompt = jsonTaskPrompt(
         "Choose the strongest AI Sequencing pricing play for Nooks.",
-        { plays: body.plays ?? [] },
+        { plays: clampArray(body.plays) },
         '{ "recommended_id": string, "rationale": string, "risks": string[] }',
         "Prefer the option that best balances ARR, NRR, gross margin, and Rule of 40. Rationale must cite at least two supplied numbers. Include 2-3 risks.",
       );
@@ -364,7 +428,7 @@ export async function handleCopilotAction(
     case "vendor-rollout": {
       const prompt = jsonTaskPrompt(
         "Recommend which LLM models Nooks should scale, pilot, or deprecate.",
-        { models: body.models ?? [], mix: body.mix ?? [] },
+        { models: clampArray(body.models), mix: clampArray(body.mix) },
         '{ "scale": string[], "pilot": string[], "deprecate": string[], "rationale": string, "concentration_warning": string | null }',
         "Each list must contain model_name strings from the input. Rationale must cite cost per action, quality, or concentration risk. Flag any vendor above 60% share.",
       );
@@ -387,7 +451,7 @@ export async function handleCopilotAction(
         "Return one paragraph of 3-4 sentences for a board packet. No JSON.",
         "",
         "History JSON:",
-        JSON.stringify(body.history ?? [], null, 2),
+        JSON.stringify(clampArray(body.history), null, 2),
       ].join("\n");
       const reply = await callGateway(
         config.apiKey,
@@ -402,6 +466,6 @@ export async function handleCopilotAction(
     }
 
     default:
-      throw new Error(`Unknown copilot action: ${action}`);
+      throw new CopilotError(`Unknown copilot action: ${action}`, 404);
   }
 }
