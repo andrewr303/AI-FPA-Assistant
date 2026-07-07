@@ -330,7 +330,7 @@ function Page() {
               {stats.netContribution >= 0 ? "+" : ""}
               {formatUsd(stats.netContribution)}
             </span>{" "}
-            on this cohort. <em className="text-muted-foreground">— Ask Why</em>
+            on this cohort.
           </p>
         </Card>
       </div>
