@@ -231,7 +231,7 @@ function Page() {
             {concentration && (
               <Badge variant="outline" className="border-warning/40 text-warning gap-1">
                 <AlertTriangle className="h-3 w-3" />
-                {concentration.vendor} at {concentration.share}% — Ask Why
+                {concentration.vendor} at {concentration.share}%
               </Badge>
             )}
           </div>
