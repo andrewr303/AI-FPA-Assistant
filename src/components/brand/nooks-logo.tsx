@@ -8,16 +8,36 @@ export function NooksLogo({
   compact?: boolean;
 }) {
   return (
-    <div className={cn("flex items-center gap-2.5", className)}>
+    <div className={cn("flex min-w-0 items-center gap-2.5", className)}>
       <div
-        className="h-7 w-7 rounded-md bg-linear-to-br from-primary via-primary to-primary/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_12px_-2px_color-mix(in_oklab,var(--primary)_50%,transparent)]"
+        className="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-xl bg-linear-to-br from-primary via-fuchsia-400 to-chart-2 shadow-[0_0_24px_-7px_color-mix(in_oklab,var(--primary)_85%,transparent)]"
         aria-hidden
-      />
-      <div className="flex flex-col leading-none">
-        <span className="text-lg font-bold tracking-tight text-foreground">AI FP&amp;A Expert</span>
+      >
+        <div className="absolute inset-px rounded-[11px] bg-linear-to-br from-white/18 via-transparent to-black/18" />
+        <svg className="relative h-5 w-5 text-white drop-shadow-sm" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M5 16.5h3.2l2.35-5.95 2.9 8.2L16 6l2.1 5.35H21"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M17.2 5.8H21v3.8"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      <div className="flex min-w-0 flex-col leading-none">
+        <span className="truncate text-base font-bold tracking-tight text-foreground">
+          AI FP&amp;A Expert
+        </span>
         {!compact && (
-          <span className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            FP&amp;A Workspace
+          <span className="mt-1 truncate text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Finance Planning &amp; Analysis
           </span>
         )}
       </div>
