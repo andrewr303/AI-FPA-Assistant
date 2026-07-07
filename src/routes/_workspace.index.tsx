@@ -178,7 +178,7 @@ function Treasury() {
             onClick={() => copilot.open("Where are we over-hiring vs plan?")}
           />
           <Card className="p-5 border-primary/40 bg-linear-to-br from-accent/40 to-card">
-            <div className="text-[10px] uppercase tracking-widest text-accent-foreground font-semibold mb-2">
+            <div className="text-xl uppercase tracking-wider text-accent-foreground font-semibold mb-2">
               Runway
             </div>
             <div className="text-3xl font-bold tabular-nums">28.4 mo</div>
@@ -194,7 +194,7 @@ function Treasury() {
           <Card className="lg:col-span-2 p-5 bg-card">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+                <div className="text-xl uppercase tracking-wider text-muted-foreground font-semibold">
                   ARR Trajectory · 12 mo
                 </div>
                 <div className="text-2xl font-bold tabular-nums mt-1">{formatUsd(arr)}</div>
@@ -249,7 +249,7 @@ function Treasury() {
 
           {/* Vendor mix */}
           <Card className="p-5 bg-card">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+            <div className="text-xl uppercase tracking-wider text-muted-foreground font-semibold">
               Vendor Mix · Inference COGS
             </div>
             <div className="text-xl font-bold tabular-nums mt-1 mb-3">
@@ -299,13 +299,13 @@ function Treasury() {
               ))}
             </div>
             <Badge variant="outline" className="mt-3 border-warning/40 text-warning text-[10px]">
-              Concentration risk · Ask Why
+              Concentration risk
             </Badge>
           </Card>
 
           {/* ARR by product */}
           <Card className="lg:col-span-2 p-5 bg-card">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-4">
+            <div className="text-xl uppercase tracking-wider text-muted-foreground font-semibold mb-4">
               ARR by Product · Margin Overlay
             </div>
             <div className="h-56">
@@ -348,7 +348,7 @@ function Treasury() {
           {/* Critical signals */}
           <Card className="p-5 bg-card">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+              <div className="text-xl uppercase tracking-wider text-muted-foreground font-semibold">
                 Signal Desk · Critical
               </div>
               <Link

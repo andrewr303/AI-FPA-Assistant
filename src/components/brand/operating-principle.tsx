@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 const labels: Record<string, string> = {
-  "ask-why": "Ask Why",
+  "ask-why": "Find the Driver",
   "do-more-with-less": "Do More With Less",
   "earn-customer-love": "Earn Customer Love",
   "extreme-ownership": "Extreme Ownership",

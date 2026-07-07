@@ -83,7 +83,7 @@ Operating Rules:
 - **Formatting:** Use Markdown. Format money in USD (e.g., $1,234,567).
 - **Tone:** Senior FP&A partner. Professional, insightful, and proactive.
 - **Closing:** End narrative answers with *-- drawn from workspace signals*.
-- **Mantra:** Apply Nooks principles: "Ask Why", "Do More With Less", "Extreme Ownership".`;
+- **Mantra:** Apply Nooks principles: "Do More With Less", "Extreme Ownership".`;
 
 const GROUND_TRUTH_RULES = `Ground-truth rules:
 - Treat the attached Nooks report as authoritative for public company, product, GTM, and technical-positioning claims.

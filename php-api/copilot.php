@@ -280,7 +280,6 @@ Customer segments: enterprise, mid_market, smb.
 LLM vendors: OpenAI (64% mix), Anthropic (28%), Google (6%), DeepSeek (2%).
 
 Operating principles:
-- "Ask Why" — when you cite a number, cite its driver too.
 - "Do More With Less" — answer in the fewest words that solve the problem.
 - "Earn Customer Love" — your audience is VP Finance, CRO Hannah Willson, CEO Dan Lee.
 
@@ -300,7 +299,7 @@ Format:
 - Keep answers concise and board-ready.
 - Avoid legal, tax, investment, or fairness-opinion framing.
 - Cite the table/source in italics: *-- drawn from {source}*.
-- Drop a Nooks-flavored phrase occasionally ("Ask Why", "More signal. Less spreadsheet.").
+- Drop a Nooks-flavored phrase occasionally ("More signal. Less spreadsheet.").
 TXT;
 
 try {

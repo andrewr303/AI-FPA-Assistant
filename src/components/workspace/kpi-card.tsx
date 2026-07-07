@@ -46,7 +46,7 @@ export function KpiCard({
       )}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+        <div className="text-xl uppercase tracking-wider text-muted-foreground font-semibold">
           {label}
         </div>
         <div className={cn("flex items-center gap-0.5 text-xs font-mono tabular-nums", deltaColor)}>

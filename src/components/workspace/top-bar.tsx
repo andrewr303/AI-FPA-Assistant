@@ -12,11 +12,14 @@ export function TopBar({
   onAskFinance?: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-border/60 glass-bar px-6 py-4 sticky top-0 z-30">
+    <div className="sticky top-0 z-30 flex items-center justify-between gap-4 border-b border-border/55 glass-bar px-6 py-3.5 shadow-[0_12px_34px_-30px_black]">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-semibold tracking-tight truncate">{title}</h1>
-          <Badge variant="outline" className="text-[10px] font-mono border-primary/30 text-primary">
+          <h1 className="truncate text-[1.35rem] font-semibold tracking-[-0.03em]">{title}</h1>
+          <Badge
+            variant="outline"
+            className="border-primary/25 bg-primary/10 text-[10px] font-mono text-white"
+          >
             FY26
           </Badge>
         </div>
@@ -34,11 +37,7 @@ export function TopBar({
             ⌘K
           </kbd>
         </Button>
-        <Button
-          size="sm"
-          onClick={onAskFinance}
-          className="gap-2 glow-violet bg-primary text-primary-foreground hover:bg-primary/90"
-        >
+        <Button size="sm" onClick={onAskFinance} className="gap-2">
           <Sparkles className="h-4 w-4" />
           Ask FP&A Expert
         </Button>
