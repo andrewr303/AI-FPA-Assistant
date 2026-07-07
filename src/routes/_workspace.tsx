@@ -20,11 +20,11 @@ function WorkspaceLayout() {
 
   return (
     <CopilotProvider>
-      <div className="flex min-h-screen text-foreground bg-grid">
+      <div className="flex min-h-screen bg-grid text-foreground">
         <SidebarNav />
         <main className="flex-1 min-w-0 flex flex-col pb-16 md:pb-0">
           <Outlet />
-          <footer className="mt-auto border-t border-border/60 px-6 py-4 text-[11px] text-muted-foreground font-medium uppercase tracking-widest flex items-center justify-between">
+          <footer className="mt-auto flex items-center justify-between border-t border-border/50 px-6 py-4 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             <span>AI FP&amp;A Expert</span>
             <span className="text-primary/80">More signal. Less spreadsheet.</span>
           </footer>
@@ -39,7 +39,7 @@ function WorkspaceLayout() {
                 to={item.to}
                 className={cn(
                   "rounded-md px-2 py-2 text-[11px] flex flex-col items-center gap-1 transition-colors",
-                  active ? "text-primary bg-primary/10" : "text-muted-foreground",
+                  active ? "bg-primary/20 text-white" : "text-muted-foreground",
                 )}
               >
                 <Icon className="h-4 w-4" />

@@ -52,20 +52,20 @@
 /* Dark by default — this is a dark-first product */
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.16 0.015 270);
-  --foreground: oklch(0.98 0.005 270);
-  --card: oklch(0.22 0.018 270 / 0.66);
+  --background: oklch(0.145 0.012 268);
+  --foreground: oklch(0.985 0.004 270);
+  --card: oklch(0.205 0.014 270 / 0.78);
   --card-foreground: oklch(0.98 0.005 270);
   --popover: oklch(0.2 0.018 270);
   --popover-foreground: oklch(0.98 0.005 270);
   --primary: oklch(0.68 0.22 295);
-  --primary-foreground: oklch(0.16 0.015 270);
+  --primary-foreground: oklch(0.99 0.004 270);
   --secondary: oklch(0.25 0.02 270);
   --secondary-foreground: oklch(0.98 0.005 270);
   --muted: oklch(0.25 0.02 270);
-  --muted-foreground: oklch(0.7 0.02 270);
-  --accent: oklch(0.3 0.08 295);
-  --accent-foreground: oklch(0.85 0.15 295);
+  --muted-foreground: oklch(0.74 0.018 270);
+  --accent: oklch(0.285 0.052 285);
+  --accent-foreground: oklch(0.94 0.035 285);
   --destructive: oklch(0.62 0.22 27);
   --destructive-foreground: oklch(0.98 0.005 270);
   --success: oklch(0.68 0.17 145);
@@ -81,7 +81,7 @@
   --sidebar: oklch(0.14 0.015 270);
   --sidebar-foreground: oklch(0.98 0.005 270);
   --sidebar-primary: oklch(0.68 0.22 295);
-  --sidebar-primary-foreground: oklch(0.16 0.015 270);
+  --sidebar-primary-foreground: oklch(0.99 0.004 270);
   --sidebar-accent: oklch(0.22 0.02 270);
   --sidebar-accent-foreground: oklch(0.98 0.005 270);
   --sidebar-border: oklch(0.24 0.02 270);
@@ -102,23 +102,22 @@
     font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    /* Ambient light — a restrained aurora that gives the glass surfaces
-       something to refract, without tipping into gradient soup. */
+    /* Ambient light kept deliberately quiet: executive cockpit, not demo candy. */
     background-image:
       radial-gradient(
         60rem 40rem at 12% -8%,
-        color-mix(in oklab, var(--primary) 16%, transparent),
-        transparent 60%
+        color-mix(in oklab, var(--primary) 10%, transparent),
+        transparent 64%
       ),
       radial-gradient(
         50rem 40rem at 100% 0%,
-        color-mix(in oklab, var(--chart-2) 12%, transparent),
-        transparent 55%
+        color-mix(in oklab, var(--chart-2) 8%, transparent),
+        transparent 58%
       ),
       radial-gradient(
         70rem 50rem at 50% 120%,
-        color-mix(in oklab, var(--chart-5) 10%, transparent),
-        transparent 60%
+        color-mix(in oklab, var(--chart-5) 6%, transparent),
+        transparent 62%
       );
     background-attachment: fixed;
   }
@@ -133,8 +132,9 @@
 @layer utilities {
   .glow-violet {
     box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--primary) 30%, transparent),
-      0 8px 32px -8px color-mix(in oklab, var(--primary) 50%, transparent);
+      inset 0 1px 0 color-mix(in oklab, white 22%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--primary) 36%, transparent),
+      0 12px 30px -14px color-mix(in oklab, var(--primary) 70%, transparent);
   }
   .bg-grid {
     background-image:
@@ -155,7 +155,7 @@
      Translucent panes that blur what's behind them, edged with a hairline
      border and a top inset highlight so light appears to catch the rim. */
   .glass {
-    background-color: color-mix(in oklab, var(--card) 62%, transparent);
+    background-color: color-mix(in oklab, var(--card) 74%, transparent);
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
     border: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
@@ -169,9 +169,10 @@
   .glass-card {
     backdrop-filter: blur(18px) saturate(135%);
     -webkit-backdrop-filter: blur(18px) saturate(135%);
+    border-color: color-mix(in oklab, var(--foreground) 9%, transparent);
     box-shadow:
       inset 0 1px 0 0 color-mix(in oklab, var(--foreground) 10%, transparent),
-      0 14px 44px -22px color-mix(in oklab, var(--background) 92%, transparent);
+      0 18px 48px -28px color-mix(in oklab, black 84%, transparent);
   }
   .glass-strong {
     background-color: color-mix(in oklab, var(--card) 78%, transparent);
@@ -183,7 +184,7 @@
       0 20px 60px -24px color-mix(in oklab, var(--background) 95%, transparent);
   }
   .glass-bar {
-    background-color: color-mix(in oklab, var(--background) 58%, transparent);
+    background-color: color-mix(in oklab, var(--background) 74%, transparent);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
     border-color: color-mix(in oklab, var(--foreground) 8%, transparent);
@@ -202,6 +203,18 @@
       0 0 0 1px color-mix(in oklab, var(--primary) 22%, transparent),
       0 18px 50px -22px color-mix(in oklab, var(--primary) 55%, transparent);
     transform: translateY(-1px);
+  }
+
+  .hairline {
+    box-shadow: inset 0 1px 0 color-mix(in oklab, white 8%, transparent);
+  }
+  .quiet-panel {
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--card) 92%, transparent),
+      color-mix(in oklab, var(--background) 56%, transparent)
+    );
+    border-color: color-mix(in oklab, var(--foreground) 8%, transparent);
   }
 
   .scrollbar-thin::-webkit-scrollbar {
